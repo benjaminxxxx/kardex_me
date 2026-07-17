@@ -17,6 +17,8 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Traits\HasAuditColumns;
+use App\Notifications\ResetPasswordNotification;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 /**
  * @property int $id
@@ -31,7 +33,7 @@ use App\Traits\HasAuditColumns;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password','person_id'])]
+#[Fillable(['name', 'email', 'password', 'person_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -66,11 +68,15 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->belongsTo(Person::class);
     }
-    
+
     protected function name(): Attribute
     {
         return Attribute::make(
             get: fn() => $this->person?->display_name
         );
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

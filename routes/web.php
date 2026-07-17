@@ -10,7 +10,7 @@ use App\Livewire\Employees\EmployeeForm;
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('/', 'welcome')->name('home');
+    Route::view('/', 'dashboard')->name('home');
     Route::view('dashboard', 'dashboard')->name('dashboard');
 
     // =========================================================================
