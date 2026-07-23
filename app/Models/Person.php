@@ -65,4 +65,8 @@ class Person extends Model
     {
         return $this->hasOne(Employee::class);
     }
+    public function supplier(): HasOne
+    {
+        return $this->hasOne(Supplier::class);
+    }
 }

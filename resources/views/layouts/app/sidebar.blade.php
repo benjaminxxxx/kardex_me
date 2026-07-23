@@ -10,21 +10,73 @@
         <flux:sidebar.header>
             <flux:sidebar.brand href="#" logo="{{ asset('images/logo.svg') }}"
                 logo:dark="{{ asset('images/logo.svg') }}" name="Kardex" />
+
             <flux:sidebar.collapse
                 class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
         </flux:sidebar.header>
+
         <flux:sidebar.nav>
-            {{-- DOMINIO: RECURSOS HUMANOS --}}
-            <flux:sidebar.group expandable icon="users" heading="Recursos Humanos" class="grid" :default-open="true">
-                <flux:sidebar.item icon="user-group" href="{{ route('employees.index') }}" {{-- Cambia por tu ruta real
-                    --}} :current="request()->routeIs('employees.*')">
-                    Empleados
+
+            {{-- DOMINIO: KARDEX --}}
+            <flux:sidebar.group expandable icon="clipboard-document-list" heading="Kardex" class="grid"
+                :default-open="true">
+
+                <flux:sidebar.item icon="arrow-down-circle" href="{{ route('entries.index') }}"
+                    :current="request()->routeIs('entries.*')">
+                    Entradas
                 </flux:sidebar.item>
+
+                <flux:sidebar.item icon="arrow-up-circle" href="{{ route('outputs.index') }}"
+                    :current="request()->routeIs('outputs.*')">
+                    Salidas
+                </flux:sidebar.item>
+
+                <flux:sidebar.item icon="map-pin" href="{{ route('zones.index') }}"
+                    :current="request()->routeIs('zones.*')">
+                    Zonas / Destinos
+                </flux:sidebar.item>
+
+                <flux:sidebar.item icon="clipboard-document" href="{{ route('kardex.index') }}"
+                    :current="request()->routeIs('kardex.*')">
+                    Kardex
+                </flux:sidebar.item>
+
             </flux:sidebar.group>
 
-            
+            {{-- DOMINIO: ALMACÉN / INVENTARIO --}}
+            <flux:sidebar.group expandable icon="archive-box" heading="Almacén / Inventario" class="grid">
+
+                <flux:sidebar.item icon="cube" href="{{ route('products.index') }}"
+                    :current="request()->routeIs('products.*')">
+                    Productos
+                </flux:sidebar.item>
+
+            </flux:sidebar.group>
+
+            {{-- DOMINIO: COMPRAS --}}
+            <flux:sidebar.group expandable icon="shopping-cart" heading="Compras" class="grid">
+
+                <flux:sidebar.item icon="truck" href="{{ route('suppliers.index') }}"
+                    :current="request()->routeIs('suppliers.*')">
+                    Proveedores
+                </flux:sidebar.item>
+
+            </flux:sidebar.group>
+
+            {{-- DOMINIO: RECURSOS HUMANOS --}}
+            <flux:sidebar.group expandable icon="users" heading="Recursos Humanos" class="grid">
+
+                <flux:sidebar.item icon="user-group" href="{{ route('employees.index') }}"
+                    :current="request()->routeIs('employees.*')">
+                    Empleados
+                </flux:sidebar.item>
+
+            </flux:sidebar.group>
+
         </flux:sidebar.nav>
+
         <flux:sidebar.spacer />
+
         <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
     </flux:sidebar>
     <flux:header class="lg:hidden">

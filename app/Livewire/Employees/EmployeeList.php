@@ -8,12 +8,14 @@ use App\Support\ExcelHelper;
 use Exception;
 use Flux\Flux;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
+#[Title('Empleados')]
 class EmployeeList extends Component
 {
     use WithPagination;

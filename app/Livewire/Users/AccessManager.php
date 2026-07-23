@@ -89,6 +89,8 @@ class AccessManager extends Component
         $user = User::where('person_id', $this->personId)->firstOrFail();
         $user->update(['password' => Hash::make($this->password)]);
 
+
+
         $this->password = '';
         $this->password_confirmation = '';
         $this->showPasswordForm = false;
@@ -101,7 +103,12 @@ class AccessManager extends Component
             'email' => ['required', 'email', 'unique:users,email,' . User::where('person_id', $this->personId)->value('id')],
         ]);
 
-        User::where('person_id', $this->personId)->update(['email' => $this->email]);
+        $user = User::where('person_id', $this->personId)->firstOrFail();
+
+        $user->update([
+            'password' => Hash::make($this->password),
+        ]);
+
         Flux::toast('Correo de acceso actualizado.');
     }
 

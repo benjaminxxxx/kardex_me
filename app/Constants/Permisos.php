@@ -4,17 +4,65 @@ namespace App\Constants;
 
 class Permisos
 {
-    const ROL_ADMIN = 'admin';
+    // =========================================================================
+    // ROLES
+    // =========================================================================
 
-    // Usuarios (cuentas de acceso al sistema)
-    const USUARIOS_VER = 'usuarios.ver';
-    const USUARIOS_GESTIONAR = 'usuarios.gestionar'; // crear, editar, eliminar, otorgar acceso
+    public const ROL_ADMIN = 'admin';
 
-    // Empleados (dominio de personal)
-    const EMPLEADOS_VER = 'empleados.ver';
-    const EMPLEADOS_GESTIONAR = 'empleados.gestionar'; // crear, editar, eliminar
+    // =========================================================================
+    // USUARIOS
+    // =========================================================================
 
-    // Futuro: cuando actives el módulo Kardex
-    // const KARDEX_VER = 'kardex.ver';
-    // const KARDEX_GESTIONAR = 'kardex.gestionar';
+    public const USUARIOS_VER = 'usuarios.ver';
+    public const USUARIOS_GESTIONAR = 'usuarios.gestionar';
+
+    // =========================================================================
+    // EMPLEADOS
+    // =========================================================================
+
+    public const EMPLEADOS_VER = 'empleados.ver';
+    public const EMPLEADOS_GESTIONAR = 'empleados.gestionar';
+
+    // =========================================================================
+    // PRODUCTOS
+    // =========================================================================
+
+    public const PRODUCTOS_VER = 'productos.ver';
+    public const PRODUCTOS_GESTIONAR = 'productos.gestionar';
+
+    // =========================================================================
+    // PROVEEDORES
+    // =========================================================================
+
+    public const PROVEEDORES_VER = 'proveedores.ver';
+    public const PROVEEDORES_GESTIONAR = 'proveedores.gestionar';
+
+    // =========================================================================
+    // ENTRADAS
+    // =========================================================================
+
+    public const ENTRADAS_VER = 'entradas.ver';
+    public const ENTRADAS_GESTIONAR = 'entradas.gestionar';
+
+    // =========================================================================
+    // SALIDAS
+    // =========================================================================
+
+    public const SALIDAS_VER = 'salidas.ver';
+    public const SALIDAS_GESTIONAR = 'salidas.gestionar';
+
+    // =========================================================================
+    // ZONAS / DESTINOS
+    // =========================================================================
+
+    public const ZONAS_VER = 'zonas.ver';
+    public const ZONAS_GESTIONAR = 'zonas.gestionar';
+
+    // =========================================================================
+    // KARDEX
+    // =========================================================================
+
+    public const KARDEX_VER = 'kardex.ver';
+    public const KARDEX_GESTIONAR = 'kardex.gestionar';
 }

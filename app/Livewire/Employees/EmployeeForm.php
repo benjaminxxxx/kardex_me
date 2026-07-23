@@ -3,15 +3,12 @@
 namespace App\Livewire\Employees;
 
 use App\Models\Employee;
-use App\Models\Person;
-use App\Models\User;
 use Flux\Flux;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Registrar empleados')]
 class EmployeeForm extends Component
 {
     public int $step = 1;

@@ -37,7 +37,7 @@
 
             {{-- El botón de agregar persona SIEMPRE está visible --}}
             <flux:button variant="ghost" icon="plus" wire:click="openRegistrar">
-                No existe, registrar persona nueva
+                No existe, registrar persona o entidad nueva
             </flux:button>
 
             @if ($search && mb_strlen($search) >= 2)

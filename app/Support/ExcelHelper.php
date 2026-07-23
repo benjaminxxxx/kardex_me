@@ -12,6 +12,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Worksheet\Table;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 class ExcelHelper
 {
     /**
@@ -240,4 +241,48 @@ class ExcelHelper
         }
     }
 */
+    /**
+     * Escribe una fecha como valor numérico de Excel y le aplica el formato visual dd-mm-yyyy.
+     * Esto es clave: PhpSpreadsheet guarda fechas como número serial internamente;
+     * el formato solo cambia cómo se VE, no el dato real, así que Excel sigue
+     * permitiendo ordenar/filtrar/calcular con esas celdas como fechas reales.
+     */
+    public static function setFechaCell($hoja, string $celda, $fecha, bool $conHora = false): void
+    {
+        if (!$fecha) {
+            return;
+        }
+
+        $hoja->setCellValue($celda, ExcelDate::PHPToExcel($fecha));
+
+        $hoja->getStyle($celda)
+            ->getNumberFormat()
+            ->setFormatCode($conHora ? 'dd-mm-yyyy hh:mm' : 'dd-mm-yyyy');
+    }
+    /**
+     * Aplica bordes delgados a todo el rango de datos, ya que la plantilla
+     * no cuenta con un objeto Table de Excel que los genere automáticamente.
+     */
+    public static function aplicarBordesRango($hoja, string $rango): void
+    {
+        $hoja->getStyle($rango)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'B7B7B7'],
+                ],
+            ],
+        ]);
+
+        // Opcional: resalta el borde exterior más grueso para que se distinga
+        // visualmente del resto de la hoja
+        $hoja->getStyle($rango)->applyFromArray([
+            'borders' => [
+                'outline' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '444444'],
+                ],
+            ],
+        ]);
+    }
 }
