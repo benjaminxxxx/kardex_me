@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -79,7 +80,21 @@ class Employee extends Model
      *     return $this->hasMany(EmployeeHealthInsurance::class);
      * }
      */
+    public function explosiveDispatchesMade(): HasMany
+    {
+        return $this->hasMany(
+            ExplosiveFieldDispatch::class,
+            'dispatched_by_employee_id'
+        );
+    }
 
+    public function explosiveDispatchesRequested(): HasMany
+    {
+        return $this->hasMany(
+            ExplosiveFieldDispatch::class,
+            'requested_by_employee_id'
+        );
+    }
     // ---------------------------------------------------------------
     // Scopes útiles
     // ---------------------------------------------------------------

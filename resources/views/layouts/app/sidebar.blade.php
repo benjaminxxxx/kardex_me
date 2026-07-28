@@ -31,9 +31,22 @@
                     Salidas
                 </flux:sidebar.item>
 
+                @can(App\Constants\Permisos::DESPACHOS_EXPLOSIVOS_VER)
+                    <flux:navlist.item icon="fire" href="{{ route('explosive-dispatches.index') }}" wire:navigate>
+                        Despachos
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="fire" href="{{ route('explosive-dispatches.create') }}" wire:navigate>
+                        Despachar explosivos
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="queue-list" href="{{ route('explosive-distribution-report.index') }}"
+                        wire:navigate>
+                        Distribuciones de exp.
+                    </flux:navlist.item>
+                @endcan
+
                 <flux:sidebar.item icon="map-pin" href="{{ route('zones.index') }}"
                     :current="request()->routeIs('zones.*')">
-                    Zonas / Destinos
+                    Labores mineras
                 </flux:sidebar.item>
 
                 <flux:sidebar.item icon="clipboard-document" href="{{ route('kardex.index') }}"
@@ -61,6 +74,16 @@
                     Proveedores
                 </flux:sidebar.item>
 
+                <flux:sidebar.item icon="shopping-bag" href="{{ route('purchases.index') }}"
+                    :current="request()->routeIs('purchases.index')">
+                    Compras
+                </flux:sidebar.item>
+
+                <flux:sidebar.item icon="shopping-bag" href="{{ route('purchases.create') }}"
+                    :current="request()->routeIs('purchases.create')">
+                    Registrar compra
+                </flux:sidebar.item>
+
             </flux:sidebar.group>
 
             {{-- DOMINIO: RECURSOS HUMANOS --}}
@@ -72,6 +95,27 @@
                 </flux:sidebar.item>
 
             </flux:sidebar.group>
+
+            <flux:sidebar.group expandable icon="cog-6-tooth" heading="Sistema" class="grid">
+                {{-- - @can(App\Constants\Permisos::USUARIOS_VER)
+                <flux:navlist.item icon="users" href="{{ route('users.index') }}" wire:navigate>
+                    Usuarios
+                </flux:navlist.item>
+                @endcan
+                --}}
+                @can(App\Constants\Permisos::ROLES_VER)
+                    <flux:navlist.item icon="shield-check" href="{{ route('roles.index') }}" wire:navigate>
+                        Roles
+                    </flux:navlist.item>
+                @endcan
+                @can(App\Constants\Permisos::CONFIGURACION_VER)
+                    <flux:navlist.item icon="cog-6-tooth" href="{{ route('settings.company') }}" wire:navigate>
+                        Configuración
+                    </flux:navlist.item>
+                @endcan
+            </flux:sidebar.group>
+
+
 
         </flux:sidebar.nav>
 
