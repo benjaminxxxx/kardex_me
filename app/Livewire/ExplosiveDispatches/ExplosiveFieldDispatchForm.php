@@ -47,7 +47,7 @@ class ExplosiveFieldDispatchForm extends Component
     {
         return Employee::with('person')
             ->whereHas('person.user', function ($q) {
-                $q->permission(Permisos::EXPLOSIVOS_RETIRAR);
+                $q->permission(Permisos::EXPLOSIVOS_DISTRIBUIR);
             })
             ->where('status', 'active')
             ->get();

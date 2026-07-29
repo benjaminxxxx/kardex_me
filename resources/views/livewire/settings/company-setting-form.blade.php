@@ -50,6 +50,9 @@
     </flux:card>
 
     <div class="flex justify-end">
-        <flux:button variant="primary" wire:click="save" icon="check">Guardar configuración</flux:button>
+        @can(\App\Constants\Permisos::CONFIGURACION_GESTIONAR)
+            <flux:button variant="primary" wire:click="save" icon="check">Guardar configuración</flux:button>
+        @endcan
+        
     </div>
 </div>

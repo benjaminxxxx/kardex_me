@@ -3,12 +3,8 @@
 namespace App\Services;
 
 use App\Models\CompanySetting;
-use App\Models\ExplosiveBufferMovement;
 use App\Models\ExplosiveFieldDispatch;
 use App\Models\ExplosiveFieldDistribution;
-use App\Models\ExplosiveRole;
-use App\Models\Product;
-use App\Models\StockLocation;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 

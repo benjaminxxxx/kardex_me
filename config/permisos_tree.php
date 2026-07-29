@@ -70,32 +70,17 @@ return [
     [
         'nombre' => 'Kardex',
         'hijos' => [
-            [
-                'nombre' => Permisos::ENTRADAS_VER,
-                'hijos' => [
-                    ['nombre' => Permisos::ENTRADAS_GESTIONAR],
-                ],
-            ],
+           
             [
                 'nombre' => Permisos::DESPACHOS_EXPLOSIVOS_VER,
                 'hijos' => [
-                    ['nombre' => Permisos::DESPACHOS_EXPLOSIVOS_GESTIONAR],
-                    ['nombre' => Permisos::EXPLOSIVOS_ENTRADA_REGISTRAR],
                     ['nombre' => Permisos::EXPLOSIVOS_DESPACHO_REGISTRAR],
-                    ['nombre' => Permisos::EXPLOSIVOS_DISTRIBUIR],
-                    ['nombre' => Permisos::EXPLOSIVOS_RETIRAR],
-                    ['nombre' => Permisos::EXPLOSIVOS_BUFFER_VER],
+                    ['nombre' => Permisos::EXPLOSIVOS_DISTRIBUIR]
                 ],
             ],
             [
                 'nombre' => Permisos::DISTRIBUCION_REPORTE_VER,
                 'hijos' => [],
-            ],
-            [
-                'nombre' => Permisos::SALIDAS_VER,
-                'hijos' => [
-                    ['nombre' => Permisos::SALIDAS_GESTIONAR],
-                ],
             ],
             [
                 'nombre' => Permisos::LABORES_VER,

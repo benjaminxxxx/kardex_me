@@ -63,7 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('kardex.index');
 
         Route::get('/{kardex}', KardexShow::class)
-            ->middleware('can:' . Permisos::KARDEX_VER)
+            ->middleware('can:' . Permisos::KARDEX_GESTIONAR)
             ->name('kardex.show');
 
         Route::middleware('can:' . Permisos::KARDEX_GESTIONAR)->group(function () {

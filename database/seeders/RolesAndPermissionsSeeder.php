@@ -25,11 +25,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Permisos::PROVEEDORES_VER, Permisos::PROVEEDORES_GESTIONAR,
             Permisos::COMPRAS_VER, Permisos::COMPRAS_GESTIONAR,
             Permisos::PRODUCTOS_VER, Permisos::PRODUCTOS_GESTIONAR,
-            Permisos::ENTRADAS_VER, Permisos::ENTRADAS_GESTIONAR,
-            Permisos::SALIDAS_VER, Permisos::SALIDAS_GESTIONAR,
-            Permisos::DESPACHOS_EXPLOSIVOS_VER, Permisos::DESPACHOS_EXPLOSIVOS_GESTIONAR,
-            Permisos::EXPLOSIVOS_ENTRADA_REGISTRAR, Permisos::EXPLOSIVOS_DESPACHO_REGISTRAR,
-            Permisos::EXPLOSIVOS_DISTRIBUIR, Permisos::EXPLOSIVOS_RETIRAR, Permisos::EXPLOSIVOS_BUFFER_VER,
+            Permisos::DESPACHOS_EXPLOSIVOS_VER,Permisos::EXPLOSIVOS_DESPACHO_REGISTRAR,
+            Permisos::EXPLOSIVOS_DISTRIBUIR,
             Permisos::DISTRIBUCION_REPORTE_VER,
             Permisos::LABORES_VER, Permisos::LABORES_GESTIONAR,
             Permisos::KARDEX_VER, Permisos::KARDEX_GESTIONAR,
@@ -62,7 +59,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $despachador->syncPermissions([
             Permisos::DESPACHOS_EXPLOSIVOS_VER,
             Permisos::EXPLOSIVOS_DESPACHO_REGISTRAR,
-            Permisos::EXPLOSIVOS_ENTRADA_REGISTRAR,
             Permisos::PRODUCTOS_VER,
             Permisos::LABORES_VER,
         ]);
@@ -71,7 +67,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $supervisor = Role::firstOrCreate(['name' => 'Supervisor', 'guard_name' => 'web']);
         $supervisor->syncPermissions([
             Permisos::DESPACHOS_EXPLOSIVOS_VER,
-            Permisos::EXPLOSIVOS_RETIRAR,
             Permisos::EXPLOSIVOS_DISTRIBUIR,
             Permisos::DISTRIBUCION_REPORTE_VER,
             Permisos::LABORES_VER,

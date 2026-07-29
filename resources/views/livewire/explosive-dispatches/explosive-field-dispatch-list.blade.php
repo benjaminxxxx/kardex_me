@@ -9,7 +9,7 @@
             <flux:heading size="xl"> Despachos de explosivos</flux:heading>
             <flux:text class="text-muted mt-2">Registro de explosivos en campo.</flux:text>
         </div>
-        @can(App\Constants\Permisos::DESPACHOS_EXPLOSIVOS_GESTIONAR)
+        @can(App\Constants\Permisos::EXPLOSIVOS_DESPACHO_REGISTRAR)
             <flux:button variant="primary" icon="plus" href="{{ route('explosive-dispatches.create') }}">
                 Nuevo Despacho
             </flux:button>

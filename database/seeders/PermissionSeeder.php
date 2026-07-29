@@ -28,16 +28,7 @@ class PermissionSeeder extends Seeder
             Permisos::PROVEEDORES_VER,
             Permisos::PROVEEDORES_GESTIONAR,
 
-            // Entradas
-            Permisos::ENTRADAS_VER,
-            Permisos::ENTRADAS_GESTIONAR,
-
-            // Salidas
-            Permisos::SALIDAS_VER,
-            Permisos::SALIDAS_GESTIONAR,
             Permisos::DESPACHOS_EXPLOSIVOS_VER,
-            Permisos::DESPACHOS_EXPLOSIVOS_GESTIONAR,
-            Permisos::EXPLOSIVOS_RETIRAR,
 
             // Labores
             Permisos::LABORES_VER,

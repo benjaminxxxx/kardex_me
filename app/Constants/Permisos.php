@@ -43,31 +43,12 @@ class Permisos
     const PROVEEDORES_GESTIONAR = 'proveedores.gestionar';
 
     // =========================================================================
-    // ENTRADAS
-    // =========================================================================
-
-    const ENTRADAS_VER = 'entradas.ver';
-    const ENTRADAS_GESTIONAR = 'entradas.gestionar';
-
-    // =========================================================================
-    // SALIDAS (genérico)
-    // =========================================================================
-
-    const SALIDAS_VER = 'salidas.ver';
-    const SALIDAS_GESTIONAR = 'salidas.gestionar';
-
-    // =========================================================================
     // DESPACHO DE EXPLOSIVOS (dominio regulado, permisos propios)
     // =========================================================================
 
     const DESPACHOS_EXPLOSIVOS_VER = 'despachos_explosivos.ver';
-    const DESPACHOS_EXPLOSIVOS_GESTIONAR = 'despachos_explosivos.gestionar'; // acceso general al submódulo
-
-    const EXPLOSIVOS_ENTRADA_REGISTRAR = 'explosivos.entrada_registrar';   // registrar ingreso de explosivos a almacén
     const EXPLOSIVOS_DESPACHO_REGISTRAR = 'explosivos.despacho_registrar'; // almacenero: registra el despacho a campo
     const EXPLOSIVOS_DISTRIBUIR = 'explosivos.distribuir';                 // supervisor: reparte por perforista/labor
-    const EXPLOSIVOS_RETIRAR = 'explosivos.retirar';                       // elegible para figurar como "supervisor que retira"
-    const EXPLOSIVOS_BUFFER_VER = 'explosivos.buffer_ver';                 // ver arqueo/sobrante acumulado (futuro reporte)
 
     // =========================================================================
     // ZONAS / LABORES
