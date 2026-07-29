@@ -3,11 +3,14 @@
 use App\Livewire\ExplosiveDispatches\ExplosiveDistributionReportList;
 use App\Livewire\ExplosiveDispatches\ExplosiveFieldDispatchList;
 use App\Livewire\ExplosiveDispatches\ExplosiveFieldDistributionForm;
+use App\Livewire\Kardex\KardexShow;
+use App\Livewire\Kardex\KardexWizard;
 use App\Livewire\MiningLabors\MiningLaborList;
 use App\Livewire\MiningLabors\MiningLaborForm;
 use App\Livewire\Purchases\PurchaseForm;
 use App\Livewire\Purchases\PurchaseList;
 use App\Livewire\Settings\CompanySettingForm;
+use App\Livewire\StockMovements\StockMovementList;
 use Illuminate\Support\Facades\Route;
 
 use App\Constants\Permisos;
@@ -21,16 +24,9 @@ use App\Livewire\Products\ProductList;
 use App\Livewire\Suppliers\SupplierWizard;
 use App\Livewire\Suppliers\SupplierList;
 
-use App\Livewire\Entries\EntryForm;
-use App\Livewire\Entries\EntryList;
-
-use App\Livewire\Outputs\OutputForm;
-use App\Livewire\Outputs\OutputList;
-
 use App\Livewire\Kardex\KardexList;
 
 use App\Livewire\ExplosiveDispatches\ExplosiveFieldDispatchForm;
-//use App\Livewire\ExplosiveDispatches\ExplosiveFieldDispatchList;
 
 use App\Livewire\Roles\RoleList;
 use App\Livewire\Roles\RolePermissionsManager;
@@ -52,33 +48,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{role}/permisos', RolePermissionsManager::class)->name('roles.permissions');
         });
     });
-    
+
     // =========================================================================
     // DOMINIO: KARDEX
     // =========================================================================
 
-    Route::prefix('entradas')->group(function () {
+    Route::get('/movimientos', StockMovementList::class)
+        ->middleware('can:' . Permisos::MOVIMIENTOS_VER)
+        ->name('stock-movements.index');
+    Route::prefix('kardex')->group(function () {
 
-        Route::get('/', EntryList::class)
-            ->middleware('can:' . Permisos::ENTRADAS_VER)
-            ->name('entries.index');
+        Route::get('/', KardexList::class)
+            ->middleware('can:' . Permisos::KARDEX_VER)
+            ->name('kardex.index');
 
-        Route::middleware('can:' . Permisos::ENTRADAS_GESTIONAR)->group(function () {
-            Route::get('/crear', EntryForm::class)->name('entries.create');
+        Route::get('/{kardex}', KardexShow::class)
+            ->middleware('can:' . Permisos::KARDEX_VER)
+            ->name('kardex.show');
+
+        Route::middleware('can:' . Permisos::KARDEX_GESTIONAR)->group(function () {
+            Route::get('/crear/wizard', KardexWizard::class)->name('kardex.wizard');
         });
     });
-
-    Route::prefix('salidas')->group(function () {
-
-        Route::get('/', OutputList::class)
-            ->middleware('can:' . Permisos::SALIDAS_VER)
-            ->name('outputs.index');
-
-        Route::middleware('can:' . Permisos::SALIDAS_GESTIONAR)->group(function () {
-            Route::get('/crear', OutputForm::class)->name('outputs.create');
-        });
-    });
-
 
     Route::prefix('despacho-explosivos')->group(function () {
 
@@ -86,7 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->middleware('can:' . Permisos::DESPACHOS_EXPLOSIVOS_VER)
             ->name('explosive-dispatches.index');
 
-        Route::middleware('can:' . Permisos::DESPACHOS_EXPLOSIVOS_GESTIONAR)->group(function () {
+        Route::middleware('can:' . Permisos::EXPLOSIVOS_DESPACHO_REGISTRAR)->group(function () {
             Route::get('/crear', ExplosiveFieldDispatchForm::class)->name('explosive-dispatches.create');
         });
 

@@ -21,6 +21,7 @@ return new class extends Migration {
 
             $table->enum('document_type', ['boleta', 'factura', 'nota_venta'])->default('factura');
             $table->string('document_number', 30)->nullable();
+            $table->string('document_series', 10)->nullable();
             $table->date('document_date');
             $table->date('due_date')->nullable();
 

@@ -11,8 +11,14 @@ class MiningLabor extends Model
     use SoftDeletes, HasAuditColumns;
 
     protected $fillable = [
-        'code', 'labor_type', 'vein_name', 'level_number',
-        'direction', 'status', 'notes', 'is_active',
+        'code',
+        'labor_type',
+        'vein_name',
+        'level_number',
+        'direction',
+        'status',
+        'notes',
+        'is_active',
     ];
 
     protected $casts = [
@@ -31,10 +37,20 @@ class MiningLabor extends Model
         'buzon' => 'B/C',
     ];
 
-    public static function buildCode(string $laborType, int $levelNumber, string $veinName): string
-    {
+    public static function buildCode(
+        string $laborType,
+        int $levelNumber,
+        ?string $veinName = null
+    ): string {
         $prefix = self::PREFIXES[$laborType] ?? '??';
-        return trim("{$prefix} {$levelNumber} " . strtoupper($veinName));
+
+        $code = "{$prefix} {$levelNumber}";
+
+        if (!blank($veinName)) {
+            $code .= ' ' . strtoupper($veinName);
+        }
+
+        return $code;
     }
 
     protected static function booted(): void

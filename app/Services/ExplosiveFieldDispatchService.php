@@ -28,6 +28,7 @@ class ExplosiveFieldDispatchService
     ];
     public function saveDistribution(ExplosiveFieldDispatch $dispatch, array $rows): void
     {
+
         DB::transaction(function () use ($dispatch, $rows) {
 
             // 1. Reemplazamos todas las filas de distribución de este despacho
@@ -59,13 +60,16 @@ class ExplosiveFieldDispatchService
                 throw new \RuntimeException('No hay almacén de Recepción configurado.');
             }
 
-            $stockService = app(\App\Services\StockService::class);
+            $stockService = app(StockService::class);
 
             foreach ($this->columnToRole as $column => $roleCode) {
+
+
                 $solicitado = (float) $dispatch->$column;
+
                 $distribuido = (float) $dispatch->distributions()->sum($column);
                 $remanente = $solicitado - $distribuido;
-
+                
                 $productColumn = $this->roleCodeToProductColumn($roleCode);
                 $productId = $dispatch->$productColumn;
 
@@ -99,7 +103,7 @@ class ExplosiveFieldDispatchService
                 } else {
                     // Se distribuyó de más: se consume de Recepción lo que faltaba
                     $faltante = abs($remanente);
-                    $disponibleEnRecepcion = \App\Services\StockService::available($productId, $recepcionId);
+                    $disponibleEnRecepcion = StockService::available($productId, $recepcionId);
 
                     if ($faltante > $disponibleEnRecepcion) {
                         throw new \RuntimeException(
@@ -144,120 +148,59 @@ class ExplosiveFieldDispatchService
 
         return $map[$roleCode];
     }
-    /*
-        public function create(array $header, array $quantitiesByRoleCode): ExplosiveFieldDispatch
-        {
-            return DB::transaction(function () use ($header, $quantitiesByRoleCode) {
+   
+public function create(array $header, array $quantitiesByRoleCode, array $selectedProductsByRoleCode): ExplosiveFieldDispatch
+{
+    return DB::transaction(function () use ($header, $quantitiesByRoleCode, $selectedProductsByRoleCode) {
 
-                // Invertimos el mapa: roleCode => column
-                $roleToColumn = array_flip($this->columnToRole);
+        $roleToColumn = array_flip($this->columnToRole);
+        $columnValues = [];
 
-                // 1. Sobrante disponible por columna, calculado ANTES de crear el nuevo despacho
-                $sobrantesDisponibles = [];
-                foreach (array_keys($this->columnToRole) as $column) {
-                    $sobrantesDisponibles[$column] = $this->calcularSobranteAcumulado($column);
-                }
+        foreach ($quantitiesByRoleCode as $roleCode => $qty) {
+            if (! isset($roleToColumn[$roleCode])) continue;
 
-                // 2. Traducimos quantitiesByRoleCode -> columnas reales de la tabla
-                $columnValues = [];
-                foreach ($quantitiesByRoleCode as $roleCode => $qty) {
-                    if (!isset($roleToColumn[$roleCode])) {
-                        continue; // rol sin columna mapeada, se ignora defensivamente
-                    }
-                    $column = $roleToColumn[$roleCode];
-                    $columnValues[$column] = filled($qty) ? (float) $qty : 0;
-                }
+            $column = $roleToColumn[$roleCode];
+            $columnValues[$column] = filled($qty) ? (float) $qty : 0;
 
-                // 3. Creamos el despacho con las columnas fijas ya traducidas
-                $dispatch = ExplosiveFieldDispatch::create(array_merge($header, $columnValues));
-
-                // 4. Por cada columna con cantidad, resolvemos su producto y
-                //    descontamos SOLO lo que realmente sale de almacén (real - sobrante)
-                foreach ($this->columnToRole as $column => $roleCode) {
-                    $solicitado = (float) ($columnValues[$column] ?? 0);
-
-                    if ($solicitado <= 0) {
-                        continue;
-                    }
-
-                    $product = Product::whereHas('explosiveRole', fn($q) => $q->where('code', $roleCode))
-                        ->where('is_active', true)
-                        ->first();
-
-                    if (!$product) {
-                        throw new \RuntimeException("No hay producto activo asignado al rol '{$roleCode}'.");
-                    }
-
-                    $sobrante = $sobrantesDisponibles[$column];
-                    $deSobrante = min($solicitado, $sobrante);
-                    $deAlmacen = $solicitado - $deSobrante;
-
-                    if ($deAlmacen > 0) {
-                        StockMovement::create([
-                            'direction' => 'out',
-                            'product_id' => $product->id,
-                            'quantity' => $deAlmacen,
-                            'movement_date' => $dispatch->dispatch_date,
-                            'source_type' => ExplosiveFieldDispatch::class,
-                            'source_id' => $dispatch->id,
-                        ]);
-                    }
-                }
-
-                return $dispatch;
-            });
+            // Esto es lo que faltaba: guardar también el producto elegido
+            $productColumn = $this->roleCodeToProductColumn($roleCode);
+            $columnValues[$productColumn] = $selectedProductsByRoleCode[$roleCode] ?? null;
         }
-    */
-    public function create(array $header, array $quantitiesByRoleCode, array $selectedProductsByRoleCode): ExplosiveFieldDispatch
-    {
-        return DB::transaction(function () use ($header, $quantitiesByRoleCode, $selectedProductsByRoleCode) {
 
-            $roleToColumn = array_flip($this->columnToRole);
-            $columnValues = [];
+        $dispatch = ExplosiveFieldDispatch::create(array_merge($header, $columnValues));
 
-            foreach ($quantitiesByRoleCode as $roleCode => $qty) {
-                if (!isset($roleToColumn[$roleCode]))
-                    continue;
-                $columnValues[$roleToColumn[$roleCode]] = filled($qty) ? (float) $qty : 0;
+        $stockService = app(StockService::class);
+
+        foreach ($this->columnToRole as $column => $roleCode) {
+            $solicitado = (float) ($columnValues[$column] ?? 0);
+            if ($solicitado <= 0) continue;
+
+            $productId = $selectedProductsByRoleCode[$roleCode] ?? null;
+            if (! $productId) {
+                throw new \RuntimeException("No se seleccionó producto para el rol '{$roleCode}'.");
             }
 
-            $dispatch = ExplosiveFieldDispatch::create(array_merge($header, $columnValues));
-
-            $stockService = app(StockService::class);
-
-            foreach ($this->columnToRole as $column => $roleCode) {
-                $solicitado = (float) ($columnValues[$column] ?? 0);
-                if ($solicitado <= 0)
-                    continue;
-
-                $productId = $selectedProductsByRoleCode[$roleCode] ?? null;
-                if (!$productId) {
-                    throw new \RuntimeException("No se seleccionó producto para el rol '{$roleCode}'.");
-                }
-
-                // Doble verificación de stock, por si el dato cambió entre la
-                // revisión y la confirmación (otra persona despachó mientras tanto)
-                $disponible = StockService::available($productId, $header['warehouse_id']);
-                if ($solicitado > $disponible) {
-                    throw new \RuntimeException(
-                        "Stock insuficiente de '{$roleCode}' al confirmar. Disponible: {$disponible}, solicitado: {$solicitado}."
-                    );
-                }
-
-                $stockService->registerMovement(
-                    'out',
-                    $productId,
-                    $header['warehouse_id'],
-                    $solicitado,
-                    $dispatch->dispatch_date,
-                    ExplosiveFieldDispatch::class,
-                    $dispatch->id
+            $disponible = StockService::available($productId, $header['warehouse_id']);
+            if ($solicitado > $disponible) {
+                throw new \RuntimeException(
+                    "Stock insuficiente de '{$roleCode}' al confirmar. Disponible: {$disponible}, solicitado: {$solicitado}."
                 );
             }
 
-            return $dispatch;
-        });
-    }
+            $stockService->registerMovement(
+                'out',
+                $productId,
+                $header['warehouse_id'],
+                $solicitado,
+                $dispatch->dispatch_date,
+                ExplosiveFieldDispatch::class,
+                $dispatch->id
+            );
+        }
+
+        return $dispatch;
+    });
+}
     /**
      * Sobrante acumulado histórico de una columna = todo lo despachado
      * menos todo lo distribuido, hasta el momento. Si el resultado es

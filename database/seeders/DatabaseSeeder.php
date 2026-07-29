@@ -18,14 +18,18 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
-            DeveloperSeeder::class,
-            RolesAndPermissionsSeeder::class,
+            CompanySettingSeeder::class,
+            RolesAndPermissionsSeeder::class, // primero: permisos y roles deben existir
+            DeveloperSeeder::class,           // luego: developer necesita el rol Developer ya creado
+            EmployeeSeeder::class,            // al final: asigna roles ya sembrados
             UnitSeeder::class,
             ProductCategorySeeder::class,
             ExplosiveRoleSeeder::class,
             PermissionSeeder::class,
             WarehouseSeeder::class,
-            CompanySettingSeeder::class
+            ProductSeeder::class,
+            SupplierSeeder::class,
+            MiningLaborSeeder::class
         ]);
     }
 }

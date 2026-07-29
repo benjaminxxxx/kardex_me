@@ -14,22 +14,7 @@ class ProductCategorySeeder extends Seeder
             [
                 'name' => 'Explosivos',
                 'code' => 'EXP',
-                'children' => [
-                    ['name' => 'Dinamita', 'code' => 'EXP-DIN'],
-                    ['name' => 'ANFO', 'code' => 'EXP-ANF'],
-                    ['name' => 'Emulsión', 'code' => 'EXP-EMU'],
-                ],
-            ],
-
-            [
-                'name' => 'Accesorios de Voladura',
-                'code' => 'DET',
-                'children' => [
-                    ['name' => 'Fulminantes', 'code' => 'DET-FUL'],
-                    ['name' => 'Mecha Lenta', 'code' => 'DET-MEL'],
-                    ['name' => 'Guía', 'code' => 'DET-GUI'],
-                    ['name' => 'Conectores', 'code' => 'DET-CON'],
-                ],
+                'children' => [],
             ],
 
             [
@@ -45,32 +30,12 @@ class ProductCategorySeeder extends Seeder
             ],
 
             [
-                'name' => 'Herramientas',
-                'code' => 'HER',
-                'children' => [
-                    ['name' => 'Herramientas Manuales', 'code' => 'HER-MAN'],
-                    ['name' => 'Herramientas Eléctricas', 'code' => 'HER-ELE'],
-                    ['name' => 'Instrumentos de Medición', 'code' => 'HER-MED'],
-                ],
-            ],
-
-            [
                 'name' => 'Combustibles',
                 'code' => 'COM',
                 'children' => [
                     ['name' => 'Diésel', 'code' => 'COM-DIE'],
                     ['name' => 'Gasolina', 'code' => 'COM-GAS'],
                     ['name' => 'GLP', 'code' => 'COM-GLP'],
-                ],
-            ],
-
-            [
-                'name' => 'Lubricantes',
-                'code' => 'LUB',
-                'children' => [
-                    ['name' => 'Aceites', 'code' => 'LUB-ACE'],
-                    ['name' => 'Grasas', 'code' => 'LUB-GRA'],
-                    ['name' => 'Hidráulicos', 'code' => 'LUB-HID'],
                 ],
             ],
 
@@ -85,26 +50,8 @@ class ProductCategorySeeder extends Seeder
             ],
 
             [
-                'name' => 'Material Eléctrico',
-                'code' => 'ELE',
-                'children' => [],
-            ],
-
-            [
                 'name' => 'Ferretería',
                 'code' => 'FER',
-                'children' => [],
-            ],
-
-            [
-                'name' => 'Seguridad Industrial',
-                'code' => 'SEG',
-                'children' => [],
-            ],
-
-            [
-                'name' => 'Equipos y Maquinaria',
-                'code' => 'MAQ',
                 'children' => [],
             ],
 
@@ -131,57 +78,10 @@ class ProductCategorySeeder extends Seeder
             ],
 
             [
-                'name' => 'Comunicaciones',
-                'code' => 'COMU',
-                'children' => [],
-            ],
-
-            [
                 'name' => 'Alimentos y Bebidas',
                 'code' => 'ALI',
                 'children' => [],
             ],
-
-            [
-                'name' => 'Medicamentos y Botiquín',
-                'code' => 'MED',
-                'children' => [],
-            ],
-
-            [
-                'name' => 'Material de Laboratorio',
-                'code' => 'LAB',
-                'children' => [],
-            ],
-
-            [
-                'name' => 'Reactivos Químicos',
-                'code' => 'QUI',
-                'children' => [],
-            ],
-
-            [
-                'name' => 'Consumibles',
-                'code' => 'CON',
-                'children' => [],
-            ],
-
-            [
-                'name' => 'Sacos y Empaques',
-                'code' => 'SAC',
-                'children' => [],
-            ],
-
-            [
-                'name' => 'Mineral',
-                'code' => 'MIN',
-                'children' => [
-                    ['name' => 'Mineral en Bruto', 'code' => 'MIN-BRU'],
-                    ['name' => 'Mineral Clasificado', 'code' => 'MIN-CLA'],
-                    ['name' => 'Concentrado', 'code' => 'MIN-CON'],
-                ],
-            ],
-
             [
                 'name' => 'Otros',
                 'code' => 'OTR',

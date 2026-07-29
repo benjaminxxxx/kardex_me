@@ -24,6 +24,22 @@ return new class extends Migration {
             $table->decimal('guia_aux_qty', 12, 4)->default(0);
             $table->decimal('anfo_qty', 12, 4)->default(0);
 
+            $table->foreignId('warehouse_id')->nullable()
+                ->constrained('warehouses');
+
+            $table->foreignId('fulminante_product_id')->nullable()
+                ->constrained('products');
+            $table->foreignId('emulnor_product_id')->nullable()
+                ->constrained('products');
+            $table->foreignId('mecha_lenta_product_id')->nullable()
+                ->constrained('products');
+            $table->foreignId('guia_product_id')->nullable()
+                ->constrained('products');
+            $table->foreignId('guia_aux_product_id')->nullable()
+                ->constrained('products');
+            $table->foreignId('anfo_product_id')->nullable()
+                ->constrained('products');
+
             $table->enum('status', ['pending_distribution', 'distributed'])->default('pending_distribution');
             $table->text('notes')->nullable();
             $table->auditColumns();

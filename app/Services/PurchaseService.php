@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseService
 {
-    public function __construct(private StockService $stockService) {}
+    public function __construct(private StockService $stockService)
+    {
+    }
 
     public function create(array $header, array $items): Purchase
     {
@@ -49,12 +51,23 @@ class PurchaseService
         foreach ($items as $item) {
             $quantityBase = (float) $item['quantity'] * (float) ($item['conversion_factor'] ?? 1);
 
+            // Costo de inventario: precio neto (con descuento aplicado),
+            // EXCLUYENDO IGV — el IGV es crédito fiscal recuperable, no forma
+            // parte del costo del bien (criterio NIC 2). Confirmar con contador
+            // si la empresa NO tiene derecho a crédito fiscal por algún motivo;
+            // en ese caso este cálculo debería incluir el IGV.
+            $baseAmount = (float) $item['quantity'] * (float) $item['unit_cost'];
+            $discountAmount = $baseAmount * ((float) ($item['discount_percent'] ?? 0) / 100);
+            $netCost = $baseAmount - $discountAmount;
+            $unitCostBase = $quantityBase > 0 ? round($netCost / $quantityBase, 6) : 0;
+
             $purchaseItem = $purchase->items()->create([
                 'product_id' => $item['product_id'],
                 'presentation_id' => $item['presentation_id'] ?: null,
                 'quantity' => $item['quantity'],
                 'quantity_base' => $quantityBase,
                 'unit_cost' => $item['unit_cost'],
+                'unit_cost_base' => $unitCostBase,
                 'discount_percent' => $item['discount_percent'] ?? 0,
                 'igv_percent' => $item['igv_percent'] ?? 18,
                 'line_total' => $this->lineTotal($item),
@@ -67,7 +80,8 @@ class PurchaseService
                 $quantityBase,
                 $purchase->document_date,
                 Purchase::class,
-                $purchase->id
+                $purchase->id,
+                ['purchase_item_id' => $purchaseItem->id]
             );
         }
     }

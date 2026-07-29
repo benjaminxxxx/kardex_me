@@ -21,27 +21,22 @@
             <flux:sidebar.group expandable icon="clipboard-document-list" heading="Kardex" class="grid"
                 :default-open="true">
 
-                <flux:sidebar.item icon="arrow-down-circle" href="{{ route('entries.index') }}"
-                    :current="request()->routeIs('entries.*')">
-                    Entradas
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="arrow-up-circle" href="{{ route('outputs.index') }}"
-                    :current="request()->routeIs('outputs.*')">
-                    Salidas
+                <flux:sidebar.item icon="arrows-up-down" href="{{ route('stock-movements.index') }}"
+                    :current="request()->routeIs('stock-movements.*')">
+                    Movimientos
                 </flux:sidebar.item>
 
                 @can(App\Constants\Permisos::DESPACHOS_EXPLOSIVOS_VER)
-                    <flux:navlist.item icon="fire" href="{{ route('explosive-dispatches.index') }}" wire:navigate>
+                    <flux:sidebar.item icon="fire" href="{{ route('explosive-dispatches.index') }}" wire:navigate>
                         Despachos
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="fire" href="{{ route('explosive-dispatches.create') }}" wire:navigate>
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="fire" href="{{ route('explosive-dispatches.create') }}" wire:navigate>
                         Despachar explosivos
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="queue-list" href="{{ route('explosive-distribution-report.index') }}"
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="queue-list" href="{{ route('explosive-distribution-report.index') }}"
                         wire:navigate>
                         Distribuciones de exp.
-                    </flux:navlist.item>
+                    </flux:sidebar.item>
                 @endcan
 
                 <flux:sidebar.item icon="map-pin" href="{{ route('zones.index') }}"
@@ -50,14 +45,18 @@
                 </flux:sidebar.item>
 
                 <flux:sidebar.item icon="clipboard-document" href="{{ route('kardex.index') }}"
-                    :current="request()->routeIs('kardex.*')">
+                    :current="request()->routeIs('kardex.index')">
                     Kardex
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="clipboard-document" href="{{ route('kardex.wizard') }}"
+                    :current="request()->routeIs('kardex.wizard')">
+                    Registrar Kardex
                 </flux:sidebar.item>
 
             </flux:sidebar.group>
 
             {{-- DOMINIO: ALMACÉN / INVENTARIO --}}
-            <flux:sidebar.group expandable icon="archive-box" heading="Almacén / Inventario" class="grid">
+            <flux:sidebar.group expandable icon="archive-box" heading="Almacén" class="grid">
 
                 <flux:sidebar.item icon="cube" href="{{ route('products.index') }}"
                     :current="request()->routeIs('products.*')">

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->decimal('discount_percent', 5, 2)->default(0);
             $table->decimal('igv_percent', 5, 2)->default(18);
             $table->decimal('line_total', 12, 4)->default(0);
+            $table->decimal('unit_cost_base', 18, 6)->default(0);
 
             $table->timestamps();
         });

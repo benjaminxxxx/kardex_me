@@ -1,12 +1,32 @@
 <div class="space-y-6">
-    <flux:heading size="xl">Nuevo despacho de explosivos</flux:heading>
+    <flux:breadcrumbs>
+        <flux:breadcrumbs.item href="{{ route('home') }}" icon="home" />
+        <flux:breadcrumbs.item href="{{ route('explosive-dispatches.index') }}">
+            Despachos
+        </flux:breadcrumbs.item>
+        <flux:breadcrumbs.item>Nuevo despacho</flux:breadcrumbs.item>
+    </flux:breadcrumbs>
 
-    @if (! $warehouseId)
+    <div class="flex items-center justify-between">
+        <div>
+            <flux:heading size="xl">Nuevo despacho de explosivos</flux:heading>
+            <flux:text class="text-muted mt-2">
+                Registre la salida de explosivos hacia campo.
+            </flux:text>
+        </div>
+
+        <flux:button variant="ghost" icon="arrow-left" href="{{ route('explosive-dispatches.index') }}">
+            Volver
+        </flux:button>
+    </div>
+
+    @if (!$warehouseId)
         <flux:callout variant="danger" icon="exclamation-triangle">
             <flux:callout.heading>Almacén no configurado</flux:callout.heading>
             <flux:callout.text>
                 No hay un almacén asignado para salida a mina.
-                <a href="{{ route('settings.company') }}" class="underline" wire:navigate>Configúralo aquí</a> antes de continuar.
+                <a href="{{ route('settings.company') }}" class="underline" wire:navigate>Configúralo aquí</a> antes de
+                continuar.
             </flux:callout.text>
         </flux:callout>
     @endif
@@ -27,7 +47,8 @@
             <flux:select wire:model="requestedByEmployeeId" label="Supervisor (retira)">
                 <flux:select.option value="">Seleccionar supervisor...</flux:select.option>
                 @foreach ($this->eligibleSupervisors as $employee)
-                    <flux:select.option value="{{ $employee->id }}">{{ $employee->person->display_name }}</flux:select.option>
+                    <flux:select.option value="{{ $employee->id }}">{{ $employee->person->display_name }}
+                    </flux:select.option>
                 @endforeach
             </flux:select>
         </div>
@@ -41,16 +62,12 @@
             @foreach ($this->roles as $role)
                 @php
                     $opciones = $this->productOptionsByRole[$role->code];
-                    $sinStock = $opciones->every(fn ($p) => $p['stock'] <= 0);
+                    $sinStock = $opciones->every(fn($p) => $p['stock'] <= 0);
                 @endphp
 
                 <div class="space-y-2">
-                    <flux:input
-                        type="number" step="0.01"
-                        wire:model.live="quantities.{{ $role->code }}"
-                        label="{{ $role->name }}"
-                        placeholder="0"
-                    />
+                    <flux:input type="number" step="0.01" wire:model.live="quantities.{{ $role->code }}"
+                        label="{{ $role->name }}" placeholder="0" />
 
                     @if ($opciones->isEmpty())
                         <flux:callout variant="danger" icon="x-circle" class="p-2">
@@ -58,19 +75,21 @@
                         </flux:callout>
                     @elseif ($opciones->count() === 1)
                         @php $unico = $opciones->first(); @endphp
-                        <div class="flex items-center justify-between text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 px-2 py-1.5">
+                        <div
+                            class="flex items-center justify-between text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 px-2 py-1.5">
                             <span class="text-muted truncate">{{ $unico['name'] }}</span>
                             <flux:badge size="sm" :color="$unico['stock'] > 0 ? 'green' : 'red'">
                                 {{ $unico['stock'] }}
                             </flux:badge>
                         </div>
                     @else
-                        <div class="rounded-lg border border-zinc-200 dark:border-zinc-700 divide-y divide-zinc-200 dark:divide-zinc-700">
+                        <div
+                            class="rounded-lg border border-zinc-200 dark:border-zinc-700 divide-y divide-zinc-200 dark:divide-zinc-700">
                             @foreach ($opciones as $prod)
-                                <label class="flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800">
+                                <label
+                                    class="flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800">
                                     <span class="flex items-center gap-2 truncate">
-                                        <input type="radio"
-                                            wire:model="selectedProducts.{{ $role->code }}"
+                                        <input type="radio" wire:model="selectedProducts.{{ $role->code }}"
                                             value="{{ $prod['id'] }}">
                                         <span class="truncate">{{ $prod['name'] }}</span>
                                     </span>
@@ -105,9 +124,12 @@
             <flux:heading size="lg">Confirmar despacho</flux:heading>
 
             <div class="grid gap-2 text-sm">
-                <div><span class="text-muted">Fecha:</span> {{ $dispatchDate }} · {{ $shift === 'day' ? 'Día' : 'Noche' }}</div>
-                <div><span class="text-muted">Almacenero:</span> {{ $this->dispatchedByEmployee?->person?->display_name }}</div>
-                <div><span class="text-muted">Supervisor:</span> {{ $this->eligibleSupervisors->find($requestedByEmployeeId)?->person?->display_name }}</div>
+                <div><span class="text-muted">Fecha:</span> {{ $dispatchDate }} ·
+                    {{ $shift === 'day' ? 'Día' : 'Noche' }}</div>
+                <div><span class="text-muted">Almacenero:</span>
+                    {{ $this->dispatchedByEmployee?->person?->display_name }}</div>
+                <div><span class="text-muted">Supervisor:</span>
+                    {{ $this->eligibleSupervisors->find($requestedByEmployeeId)?->person?->display_name }}</div>
             </div>
 
             <flux:table>
@@ -134,7 +156,8 @@
             </flux:table>
 
             <flux:callout variant="warning" icon="exclamation-triangle">
-                <flux:callout.text>Verifica las cantidades y productos. Una vez registrado, este despacho descuenta el stock y queda en el Kardex.</flux:callout.text>
+                <flux:callout.text>Verifica las cantidades y productos. Una vez registrado, este despacho descuenta el
+                    stock y queda en el Kardex.</flux:callout.text>
             </flux:callout>
 
             <div class="flex justify-between">

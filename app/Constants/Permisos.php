@@ -88,4 +88,5 @@ class Permisos
     const DISTRIBUCION_REPORTE_VER = 'distribucion_reporte.ver';
     const COMPRAS_VER = 'compras.ver';
     const COMPRAS_GESTIONAR = 'compras.gestionar';
+    const MOVIMIENTOS_VER = 'movimientos.ver';
 }

@@ -9,7 +9,7 @@ class PurchaseItem extends Model
 {
     protected $fillable = [
         'purchase_id', 'product_id', 'presentation_id',
-        'quantity', 'quantity_base', 'unit_cost',
+        'quantity', 'quantity_base', 'unit_cost', 'unit_cost_base',
         'discount_percent', 'igv_percent', 'line_total',
     ];
 
@@ -17,6 +17,7 @@ class PurchaseItem extends Model
         'quantity' => 'decimal:4',
         'quantity_base' => 'decimal:4',
         'unit_cost' => 'decimal:4',
+    'unit_cost_base' => 'decimal:6',
         'discount_percent' => 'decimal:2',
         'igv_percent' => 'decimal:2',
         'line_total' => 'decimal:4',

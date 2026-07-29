@@ -14,7 +14,7 @@ class Purchase extends Model
 
     protected $fillable = [
         'supplier_id', 'warehouse_id', 'currency', 'exchange_rate',
-        'document_type', 'document_number', 'document_date', 'due_date',
+        'document_type', 'document_series','document_number', 'document_date', 'due_date',
         'payment_method', 'subtotal_neto', 'igv_total', 'total', 'notes',
     ];
 

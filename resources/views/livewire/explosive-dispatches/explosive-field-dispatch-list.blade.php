@@ -1,8 +1,20 @@
 <div class="space-y-6">
+    <flux:breadcrumbs>
+        <flux:breadcrumbs.item href="{{ route('home') }}" icon="home" />
+        <flux:breadcrumbs.item>Despacho</flux:breadcrumbs.item>
+    </flux:breadcrumbs>
 
-    <flux:heading size="xl">
-        Despachos de explosivos
-    </flux:heading>
+    <div class="flex items-center justify-between">
+        <div>
+            <flux:heading size="xl"> Despachos de explosivos</flux:heading>
+            <flux:text class="text-muted mt-2">Registro de explosivos en campo.</flux:text>
+        </div>
+        @can(App\Constants\Permisos::DESPACHOS_EXPLOSIVOS_GESTIONAR)
+            <flux:button variant="primary" icon="plus" href="{{ route('explosive-dispatches.create') }}">
+                Nuevo Despacho
+            </flux:button>
+        @endcan
+    </div>
 
     <flux:table :paginate="$dispatches">
 
@@ -27,81 +39,77 @@
 
             @forelse ($dispatches as $dispatch)
 
-                <flux:table.row :key="$dispatch->id">
+                    <flux:table.row :key="$dispatch->id">
 
-                    <flux:table.cell>
-                        {{ $dispatch->dispatch_date->format('d/m/Y') }}
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ $dispatch->dispatch_date->format('d/m/Y') }}
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ $dispatch->shift === \App\Models\ExplosiveFieldDispatch::SHIFT_DAY ? 'Día' : 'Noche' }}
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ $dispatch->shift === \App\Models\ExplosiveFieldDispatch::SHIFT_DAY ? 'Día' : 'Noche' }}
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ number_format($dispatch->fulminante_qty, 0) }}
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ number_format($dispatch->fulminante_qty, 0) }}
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ number_format($dispatch->emulnor_qty, 0) }}
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ number_format($dispatch->emulnor_qty, 0) }}
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ number_format($dispatch->mecha_lenta_qty, 2) }} m
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ number_format($dispatch->mecha_lenta_qty, 2) }} m
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ number_format($dispatch->guia_qty, 2) }} m
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ number_format($dispatch->guia_qty, 2) }} m
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ number_format($dispatch->guia_aux_qty, 0) }}
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ number_format($dispatch->guia_aux_qty, 0) }}
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ number_format($dispatch->anfo_qty, 2) }} kg
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ number_format($dispatch->anfo_qty, 2) }} kg
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ $dispatch->dispatchedBy->person->display_name }}
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ $dispatch->dispatchedBy->person->display_name }}
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        {{ $dispatch->requestedBy->person->display_name }}
-                    </flux:table.cell>
+                        <flux:table.cell>
+                            {{ $dispatch->requestedBy->person->display_name }}
+                        </flux:table.cell>
 
-                    <flux:table.cell>
-                        <flux:badge
-                            size="sm"
-                            :color="$dispatch->isDistributed() ? 'green' : 'yellow'">
+                        <flux:table.cell>
+                            <flux:badge size="sm" :color="$dispatch->isDistributed() ? 'green' : 'yellow'">
 
-                            {{ $dispatch->isDistributed()
-                                ? 'Distribuido'
-                                : 'Pendiente' }}
+                                {{ $dispatch->isDistributed()
+                ? 'Distribuido'
+                : 'Pendiente' }}
 
-                        </flux:badge>
-                    </flux:table.cell>
+                            </flux:badge>
+                        </flux:table.cell>
 
-                    <flux:table.cell>
+                        <flux:table.cell>
 
-                        @if (
-                            $dispatch->requested_by_employee_id === $this->myEmployeeId &&
-                            $dispatch->isPendingDistribution()
-                        )
+                            @if (
+                                    $dispatch->requested_by_employee_id === $this->myEmployeeId &&
+                                    $dispatch->isPendingDistribution()
+                                )
 
-                            <flux:button
-                                size="sm"
-                                variant="primary"
-                                href="{{ route('explosive-dispatches.distribute', $dispatch) }}">
+                                <flux:button size="sm" variant="primary"
+                                    href="{{ route('explosive-dispatches.distribute', $dispatch) }}">
 
-                                Distribuir
+                                    Distribuir
 
-                            </flux:button>
+                                </flux:button>
 
-                        @endif
+                            @endif
 
-                    </flux:table.cell>
+                        </flux:table.cell>
 
-                </flux:table.row>
+                    </flux:table.row>
 
             @empty
 

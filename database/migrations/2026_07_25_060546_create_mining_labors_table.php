@@ -27,7 +27,7 @@ return new class extends Migration {
 
             // Apodo de veta — string simple, no tabla aparte (solo 34 valores hoy,
             // no justifica normalizar en catálogo separado todavía)
-            $table->string('vein_name', 200); // RUBY, NELLY, LIDIA, KATY, CAROLINA, CERO...
+            $table->string('vein_name')->nullable(); // RUBY, NELLY, LIDIA, KATY, CAROLINA, CERO...
 
             // Sube de 10 en 10 según me confirmaron, pero lo guardamos como número
             // libre, no como enum, porque la progresión es una convención de campo,

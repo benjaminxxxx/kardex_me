@@ -19,6 +19,12 @@ return [
                     ['nombre' => Permisos::PERMISOS_SINCRONIZAR],
                 ],
             ],
+            [
+                'nombre' => Permisos::CONFIGURACION_VER,
+                'hijos' => [
+                    ['nombre' => Permisos::CONFIGURACION_GESTIONAR],
+                ],
+            ],
         ],
     ],
     [
@@ -41,6 +47,12 @@ return [
                     ['nombre' => Permisos::PROVEEDORES_GESTIONAR],
                 ],
             ],
+            [
+                'nombre' => Permisos::COMPRAS_VER,
+                'hijos' => [
+                    ['nombre' => Permisos::COMPRAS_GESTIONAR],
+                ],
+            ],
         ],
     ],
     [
@@ -52,6 +64,7 @@ return [
                     ['nombre' => Permisos::PRODUCTOS_GESTIONAR],
                 ],
             ],
+            
         ],
     ],
     [
@@ -75,6 +88,10 @@ return [
                 ],
             ],
             [
+                'nombre' => Permisos::DISTRIBUCION_REPORTE_VER,
+                'hijos' => [],
+            ],
+            [
                 'nombre' => Permisos::SALIDAS_VER,
                 'hijos' => [
                     ['nombre' => Permisos::SALIDAS_GESTIONAR],
@@ -91,6 +108,10 @@ return [
                 'hijos' => [
                     ['nombre' => Permisos::KARDEX_GESTIONAR],
                 ],
+            ],
+            [
+                'nombre' => Permisos::MOVIMIENTOS_VER,
+                'hijos' => [],
             ],
         ],
     ],

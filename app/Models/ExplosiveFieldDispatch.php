@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExplosiveFieldDispatch extends Model
 {
@@ -21,6 +22,7 @@ class ExplosiveFieldDispatch extends Model
         'shift',
         'dispatched_by_employee_id',
         'requested_by_employee_id',
+        'warehouse_id',
 
         'fulminante_qty',
         'emulnor_qty',
@@ -28,6 +30,13 @@ class ExplosiveFieldDispatch extends Model
         'guia_qty',
         'guia_aux_qty',
         'anfo_qty',
+
+        'fulminante_product_id',
+        'emulnor_product_id',
+        'mecha_lenta_product_id',
+        'guia_product_id',
+        'guia_aux_product_id',
+        'anfo_product_id',
 
         'status',
         'notes',
@@ -54,6 +63,48 @@ class ExplosiveFieldDispatch extends Model
         return $this->belongsTo(Employee::class, 'requested_by_employee_id');
     }
 
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    // ===== Productos concretos elegidos por rol al momento del despacho =====
+
+    public function fulminanteProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'fulminante_product_id');
+    }
+
+    public function emulnorProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'emulnor_product_id');
+    }
+
+    public function mechaLentaProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'mecha_lenta_product_id');
+    }
+
+    public function guiaProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'guia_product_id');
+    }
+
+    public function guiaAuxProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'guia_aux_product_id');
+    }
+
+    public function anfoProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'anfo_product_id');
+    }
+
+    public function distributions(): HasMany
+    {
+        return $this->hasMany(ExplosiveFieldDistribution::class, 'dispatch_id');
+    }
+
     public function isPendingDistribution(): bool
     {
         return $this->status === self::STATUS_PENDING_DISTRIBUTION;
@@ -62,8 +113,5 @@ class ExplosiveFieldDispatch extends Model
     public function isDistributed(): bool
     {
         return $this->status === self::STATUS_DISTRIBUTED;
-    }
-    public function distributions(){
-        return $this->hasMany(ExplosiveFieldDistribution::class,'dispatch_id');
     }
 }

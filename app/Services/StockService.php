@@ -21,11 +21,12 @@ class StockService
         float $quantity,
         string $movementDate,
         string $sourceType,
-        int $sourceId
+        int $sourceId,
+        array $extra = []
     ): StockMovement {
-        return DB::transaction(function () use ($direction, $productId, $warehouseId, $quantity, $movementDate, $sourceType, $sourceId) {
+        return DB::transaction(function () use ($direction, $productId, $warehouseId, $quantity, $movementDate, $sourceType, $sourceId, $extra) {
 
-            $movement = StockMovement::create([
+            $movement = StockMovement::create(array_merge([
                 'direction' => $direction,
                 'product_id' => $productId,
                 'warehouse_id' => $warehouseId,
@@ -33,7 +34,7 @@ class StockService
                 'movement_date' => $movementDate,
                 'source_type' => $sourceType,
                 'source_id' => $sourceId,
-            ]);
+            ], $extra));
 
             $stock = ProductStock::firstOrCreate(
                 ['product_id' => $productId, 'warehouse_id' => $warehouseId],

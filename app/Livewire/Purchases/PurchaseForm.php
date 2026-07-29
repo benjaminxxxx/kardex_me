@@ -25,6 +25,7 @@ class PurchaseForm extends Component
     public string $currency = 'PEN';
     public string $exchangeRate = '1';
     public string $documentType = 'factura';
+    public string $documentSeries = '';
     public string $documentNumber = '';
     public string $documentDate = '';
     public string $dueDate = '';
@@ -47,6 +48,7 @@ class PurchaseForm extends Component
             $this->currency = $purchase->currency;
             $this->exchangeRate = (string) $purchase->exchange_rate;
             $this->documentType = $purchase->document_type;
+            $this->documentSeries = $purchase->document_series ?? '';
             $this->documentNumber = $purchase->document_number ?? '';
             $this->documentDate = $purchase->document_date->format('Y-m-d');
             $this->dueDate = $purchase->due_date?->format('Y-m-d') ?? '';
@@ -86,7 +88,8 @@ class PurchaseForm extends Component
 
         if ($context === 'purchase-product') {
             $product = Product::with('presentations')->find($id);
-            if (! $product) return;
+            if (!$product)
+                return;
 
             $defaultPresentation = $product->presentations->firstWhere('is_default_purchase', true)
                 ?? $product->presentations->first();
@@ -116,7 +119,8 @@ class PurchaseForm extends Component
     public function getPresentationOptions(int $index)
     {
         $productId = $this->items[$index]['product_id'] ?? null;
-        if (! $productId) return collect();
+        if (!$productId)
+            return collect();
 
         return Product::find($productId)->presentations()->where('is_active', true)->get();
     }
@@ -181,6 +185,8 @@ class PurchaseForm extends Component
             'supplierId' => ['required', 'exists:suppliers,id'],
             'warehouseId' => ['required', 'exists:warehouses,id'],
             'documentDate' => ['required', 'date'],
+            'documentSeries' => ['nullable', 'string', 'max:10'],
+            'documentNumber' => ['nullable', 'string', 'max:20'],
         ]);
 
         if (empty($this->items)) {
@@ -189,7 +195,7 @@ class PurchaseForm extends Component
         }
 
         foreach ($this->items as $item) {
-            if (! filled($item['unit_cost']) || (float) $item['unit_cost'] <= 0) {
+            if (!filled($item['unit_cost']) || (float) $item['unit_cost'] <= 0) {
                 Flux::toast('Todos los productos deben tener un costo unitario válido.', 'Error');
                 return;
             }
@@ -201,6 +207,7 @@ class PurchaseForm extends Component
             'currency' => $this->currency,
             'exchange_rate' => $this->currency === 'USD' ? $this->exchangeRate : 1,
             'document_type' => $this->documentType,
+            'document_series' => $this->documentSeries ?: null,
             'document_number' => $this->documentNumber ?: null,
             'document_date' => $this->documentDate,
             'due_date' => $this->dueDate ?: null,
