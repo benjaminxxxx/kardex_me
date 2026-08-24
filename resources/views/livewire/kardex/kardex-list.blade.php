@@ -30,7 +30,8 @@
         <flux:select wire:model.live="month" placeholder="Mes">
             <flux:select.option value="">Todos los meses</flux:select.option>
             @foreach (range(1, 12) as $m)
-                <flux:select.option value="{{ $m }}">{{ ucfirst(\Carbon\Carbon::create()->month($m)->translatedFormat('F')) }}</flux:select.option>
+                <flux:select.option value="{{ $m }}">
+                    {{ ucfirst(\Carbon\Carbon::create()->month($m)->translatedFormat('F')) }}</flux:select.option>
             @endforeach
         </flux:select>
 
@@ -41,12 +42,8 @@
         </flux:select>
 
         <div>
-            <livewire:shared.entity-search-select
-                entityType="product"
-                fieldContext="kardex-filter-product"
-                :selectedId="$productId"
-                :selectedLabel="$productLabel"
-            />
+            <livewire:shared.entity-search-select entityType="product" fieldContext="kardex-filter-product"
+                :selectedId="$productId" :selectedLabel="$productLabel" />
         </div>
     </div>
 
@@ -94,8 +91,10 @@
                     </flux:table.cell>
 
                     <flux:table.cell>{{ number_format($kardex->opening_qty, 2) }}</flux:table.cell>
-                    <flux:table.cell class="text-green-600">+{{ number_format($kardex->total_entries_qty, 2) }}</flux:table.cell>
-                    <flux:table.cell class="text-red-500">-{{ number_format($kardex->total_exits_qty, 2) }}</flux:table.cell>
+                    <flux:table.cell class="text-green-600">+{{ number_format($kardex->total_entries_qty, 2) }}
+                    </flux:table.cell>
+                    <flux:table.cell class="text-red-500">-{{ number_format($kardex->total_exits_qty, 2) }}
+                    </flux:table.cell>
                     <flux:table.cell class="font-medium">{{ number_format($kardex->closing_qty, 2) }}</flux:table.cell>
 
                     <flux:table.cell>
@@ -108,6 +107,9 @@
                         <flux:button size="sm" variant="ghost" icon="eye" href="{{ route('kardex.show', $kardex) }}">
                             Ver
                         </flux:button>
+                        <flux:button size="sm" variant="danger" icon="trash" wire:click="confirmDelete({{ $kardex->id }})">
+                            Eliminar
+                        </flux:button>
                     </flux:table.cell>
                 </flux:table.row>
             @empty
@@ -119,4 +121,28 @@
             @endforelse
         </flux:table.rows>
     </flux:table>
+    <flux:modal wire:model="deleteKardexModal" class="min-w-[22rem]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">¿Eliminar Kárdex?</flux:heading>
+
+                <flux:text class="mt-2">
+                    Está a punto de eliminar este registro de Kárdex.<br>
+                    Esta acción revertirá los saldos asociados y no se puede deshacer.
+                </flux:text>
+            </div>
+
+            <div class="flex gap-2">
+                <flux:spacer />
+
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancelar</flux:button>
+                </flux:modal.close>
+
+                <flux:button variant="danger" wire:click="deleteKardex" wire:loading.attr="disabled">
+                    Eliminar Kárdex
+                </flux:button>
+            </div>
+        </div>
+    </flux:modal>
 </div>

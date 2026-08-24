@@ -4,6 +4,7 @@ namespace App\Livewire\Purchases;
 
 use App\Models\CompanySetting;
 use App\Models\Product;
+use App\Models\ProductPresentation;
 use App\Models\Purchase;
 use App\Models\Warehouse;
 use App\Services\PurchaseService;
@@ -127,13 +128,13 @@ class PurchaseForm extends Component
 
     public function updatedItems($value, $key): void
     {
-        // key llega como "0.presentation_id" — actualizamos el factor de conversión
+        // key llega como "0.presentation_id" - actualizamos el factor de conversión
         if (str_ends_with($key, '.presentation_id')) {
             $index = (int) explode('.', $key)[0];
             $presentationId = $this->items[$index]['presentation_id'];
 
             $this->items[$index]['conversion_factor'] = $presentationId
-                ? \App\Models\ProductPresentation::find($presentationId)?->conversion_factor ?? 1
+                ? ProductPresentation::find($presentationId)?->conversion_factor ?? 1
                 : 1;
         }
     }

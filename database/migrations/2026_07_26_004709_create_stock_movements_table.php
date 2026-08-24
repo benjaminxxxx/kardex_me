@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->foreignId('product_id')->constrained('products');
             $table->decimal('quantity', 12, 4);
             $table->date('movement_date');
+            $table->string('reason', 150)->nullable();
             $table->foreignId('warehouse_id')->constrained('warehouses');
             $table->nullableMorphs('source');
             $table->timestamps();

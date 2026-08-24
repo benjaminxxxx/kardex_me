@@ -9,6 +9,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Services\Purchase\ExportToExcelService;
 
 #[Title('Compras')]
 class PurchaseList extends Component
@@ -75,17 +76,17 @@ class PurchaseList extends Component
     {
         return Purchase::query()
             ->with(['supplier.person', 'warehouse'])
-            ->when($this->showTrashed, fn ($q) => $q->onlyTrashed())
+            ->when($this->showTrashed, fn($q) => $q->onlyTrashed())
             ->when($this->search, function ($q) {
                 $q->where(function ($sub) {
                     $sub->where('document_number', 'like', "%{$this->search}%")
-                        ->orWhereHas('supplier.person', fn ($p) => $p->where('display_name', 'like', "%{$this->search}%"));
+                        ->orWhereHas('supplier.person', fn($p) => $p->where('display_name', 'like', "%{$this->search}%"));
                 });
             })
-            ->when($this->documentType, fn ($q) => $q->where('document_type', $this->documentType))
-            ->when($this->supplierId, fn ($q) => $q->where('supplier_id', $this->supplierId))
-            ->when($this->dateFrom, fn ($q) => $q->whereDate('document_date', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn ($q) => $q->whereDate('document_date', '<=', $this->dateTo))
+            ->when($this->documentType, fn($q) => $q->where('document_type', $this->documentType))
+            ->when($this->supplierId, fn($q) => $q->where('supplier_id', $this->supplierId))
+            ->when($this->dateFrom, fn($q) => $q->whereDate('document_date', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn($q) => $q->whereDate('document_date', '<=', $this->dateTo))
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(10);
     }
@@ -102,11 +103,24 @@ class PurchaseList extends Component
         Flux::toast('Compra restaurada correctamente.');
     }
 
-    public function exportToExcel()
+    public function exportToExcel(ExportToExcelService $service)
     {
-        // Pendiente
+        try {
+            return $service->execute([
+                'search' => $this->search,
+                'documentType' => $this->documentType,
+                'dateFrom' => $this->dateFrom,
+                'dateTo' => $this->dateTo,
+                'supplierId' => $this->supplierId,
+                'supplierLabel' => $this->supplierLabel,
+                'showTrashed' => $this->showTrashed,
+                'sortBy' => $this->sortBy,
+                'sortDirection' => $this->sortDirection,
+            ]);
+        } catch (\Throwable $e) {
+            Flux::toast('Error al exportar a Excel: ' . $e->getMessage(), 'error');
+        }
     }
-
     public function render()
     {
         return view('livewire.purchases.purchase-list', [

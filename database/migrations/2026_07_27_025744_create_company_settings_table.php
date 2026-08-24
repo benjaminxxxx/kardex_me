@@ -27,6 +27,9 @@ return new class extends Migration {
                 
             $table->foreignId('purchase_default_warehouse_id')->nullable()
                 ->constrained('warehouses')->nullOnDelete();
+
+            $table->boolean('restrict_distribution_to_requester')->default(true);
+            
             $table->auditColumns();
             $table->timestamps();
         });

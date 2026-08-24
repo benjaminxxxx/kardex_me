@@ -2,6 +2,8 @@
 
 namespace App\Livewire\ExplosiveDispatches;
 
+use App\Models\CompanySetting;
+use App\Models\Employee;
 use App\Models\ExplosiveFieldDispatch;
 use App\Models\MiningLabor;
 use App\Services\ExplosiveFieldDispatchService;
@@ -26,6 +28,7 @@ class ExplosiveFieldDistributionForm extends Component
 
     public function mount(ExplosiveFieldDispatch $dispatch): void
     {
+        $this->authorizeDistribution($dispatch);
         $this->dispatch = $dispatch;
 
         $existentes = $dispatch->distributions()->with(['miningLabor', 'driller.person'])->get();
@@ -38,7 +41,20 @@ class ExplosiveFieldDistributionForm extends Component
             }
         }
     }
+    private function authorizeDistribution(ExplosiveFieldDispatch $dispatch): void
+    {
+        $restringido = CompanySetting::current()->restrict_distribution_to_requester;
 
+        if (!$restringido) {
+            return; // cualquiera con el permiso de ruta ya puede pasar
+        }
+
+        $myEmployeeId = Employee::where('person_id', auth()->user()->person_id)->value('id');
+
+        if ($dispatch->requested_by_employee_id !== $myEmployeeId) {
+            abort(403, 'Solo la persona que retiró este despacho puede distribuirlo.');
+        }
+    }
     private function rowFromModel($dist): array
     {
         return [
@@ -93,12 +109,14 @@ class ExplosiveFieldDistributionForm extends Component
     #[On('entity-selected')]
     public function handleEntitySelected(string $context, int $id, string $label): void
     {
-        if (! preg_match('/^row-(\d+)-(labor|driller)$/', $context, $m)) return;
+        if (!preg_match('/^row-(\d+)-(labor|driller)$/', $context, $m))
+            return;
 
         $index = (int) $m[1];
         $field = $m[2];
 
-        if (! isset($this->rows[$index])) return;
+        if (!isset($this->rows[$index]))
+            return;
 
         $this->rows[$index]["{$field}_id"] = $id;
         $this->rows[$index]["{$field}_label"] = $label;
@@ -111,12 +129,14 @@ class ExplosiveFieldDistributionForm extends Component
     #[On('entity-cleared')]
     public function handleEntityCleared(string $context): void
     {
-        if (! preg_match('/^row-(\d+)-(labor|driller)$/', $context, $m)) return;
+        if (!preg_match('/^row-(\d+)-(labor|driller)$/', $context, $m))
+            return;
 
         $index = (int) $m[1];
         $field = $m[2];
 
-        if (! isset($this->rows[$index])) return;
+        if (!isset($this->rows[$index]))
+            return;
 
         $this->rows[$index]["{$field}_id"] = null;
         $this->rows[$index]["{$field}_label"] = null;
@@ -133,7 +153,7 @@ class ExplosiveFieldDistributionForm extends Component
 
         foreach ($this->columns as $column => $label) {
             $solicitado = (float) $this->dispatch->$column;
-            $distribuido = collect($this->rows)->sum(fn ($r) => (float) ($r[$column] ?: 0));
+            $distribuido = collect($this->rows)->sum(fn($r) => (float) ($r[$column] ?: 0));
 
             $totals[$column] = [
                 'label' => $label,
@@ -149,7 +169,7 @@ class ExplosiveFieldDistributionForm extends Component
     public function reviewBeforeSave(): void
     {
         foreach ($this->rows as $row) {
-            if (! $row['labor_id'] || ! $row['driller_id']) {
+            if (!$row['labor_id'] || !$row['driller_id']) {
                 Flux::toast('Cada fila necesita labor y perforista seleccionados.', 'Error');
                 return;
             }
@@ -160,6 +180,7 @@ class ExplosiveFieldDistributionForm extends Component
 
     public function confirmAndSave(ExplosiveFieldDispatchService $service): void
     {
+        
         try {
             $service->saveDistribution($this->dispatch, $this->rows);
 

@@ -22,7 +22,7 @@ class Supplier extends Model
         return $this->belongsTo(Person::class);
     }
 
-    // Acceso al portal, si existe — reutiliza la relación Person->User que ya tienes
+    // Acceso al portal, si existe-reutiliza la relación Person->User que ya tienes
     public function user(): ?User
     {
         return $this->person->user;

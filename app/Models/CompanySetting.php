@@ -17,8 +17,11 @@ class CompanySetting extends Model
         'purchase_default_warehouse_id',
         'mine_dispatch_warehouse_id',
         'reception_warehouse_id',
+        'restrict_distribution_to_requester',
     ];
-
+    protected $casts = [
+        'restrict_distribution_to_requester' => 'boolean',
+    ];
     public function mineDispatchWarehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'mine_dispatch_warehouse_id');

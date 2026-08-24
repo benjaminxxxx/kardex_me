@@ -10,7 +10,7 @@
             <flux:heading size="xl">Reporte de distribución de explosivos</flux:heading>
             <flux:text class="text-muted mt-2">Consumo por labor, perforista y fecha.</flux:text>
         </div>
-        <flux:button icon="arrow-down-tray" wire:click="exportToExcel">Exportar a Excel</flux:button>
+        {{--  <flux:button icon="arrow-down-tray" wire:click="exportToExcel">Exportar a Excel</flux:button> --}}
     </div>
 
     {{-- ===== Filtros ===== --}}

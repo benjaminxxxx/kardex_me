@@ -35,6 +35,7 @@ class StockMovementList extends Component
 
     public ?int $productId = null;
     public ?string $productLabel = null;
+    protected $listeners = ['movement-created' => '$refresh'];
 
     #[On('entity-selected')]
     public function handleEntitySelected(string $context, int $id, string $label): void

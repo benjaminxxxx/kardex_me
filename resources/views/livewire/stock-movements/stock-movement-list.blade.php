@@ -6,9 +6,22 @@
         <flux:breadcrumbs.item>Movimientos</flux:breadcrumbs.item>
     </flux:breadcrumbs>
 
-    <div>
-        <flux:heading size="xl">Movimientos de stock</flux:heading>
-        <flux:text class="text-muted mt-2">Vista atómica de entradas y salidas, independiente del proceso que las originó.</flux:text>
+    <div class="flex items-center justify-between">
+        <div>
+            <flux:heading size="xl">Movimientos de stock</flux:heading>
+            <flux:text class="text-muted mt-2">Vista atómica de entradas y salidas, independiente del proceso que las
+                originó.</flux:text>
+        </div>
+
+        {{-- Botones de acción manual --}}
+        <div class="flex gap-2">
+            <flux:button color="green" icon="plus" wire:click="$dispatch('open-movement-modal', { direction: 'in' })">
+                Entrada
+            </flux:button>
+            <flux:button color="red" icon="minus" wire:click="$dispatch('open-movement-modal', { direction: 'out' })">
+                Salida
+            </flux:button>
+        </div>
     </div>
 
     {{-- ===== Filtros ===== --}}
@@ -36,7 +49,9 @@
         <flux:select wire:model.live="month" placeholder="Mes">
             <flux:select.option value="">Todos los meses</flux:select.option>
             @foreach (range(1, 12) as $m)
-                <flux:select.option value="{{ $m }}">{{ ucfirst(\Carbon\Carbon::create()->month($m)->translatedFormat('F')) }}</flux:select.option>
+                <flux:select.option value="{{ $m }}">
+                    {{ ucfirst(\Carbon\Carbon::create()->month($m)->translatedFormat('F')) }}
+                </flux:select.option>
             @endforeach
         </flux:select>
     </div>
@@ -47,12 +62,8 @@
 
         <div>
             <flux:label>Producto</flux:label>
-            <livewire:shared.entity-search-select
-                entityType="product"
-                fieldContext="movement-filter-product"
-                :selectedId="$productId"
-                :selectedLabel="$productLabel"
-            />
+            <livewire:shared.entity-search-select entityType="product" fieldContext="movement-filter-product"
+                :selectedId="$productId" :selectedLabel="$productLabel" />
         </div>
     </div>
 
@@ -93,7 +104,8 @@
                         </div>
                     </flux:table.cell>
 
-                    <flux:table.cell class="{{ $movement->direction === 'in' ? 'text-green-600' : 'text-red-500' }} font-medium">
+                    <flux:table.cell
+                        class="{{ $movement->direction === 'in' ? 'text-green-600' : 'text-red-500' }} font-medium">
                         {{ $movement->direction === 'in' ? '+' : '-' }}{{ $movement->quantity }}
                     </flux:table.cell>
 
@@ -112,4 +124,7 @@
             @endforelse
         </flux:table.rows>
     </flux:table>
+
+    {{-- Componente Modal --}}
+    <livewire:stock-movements.stock-movement-create-modal />
 </div>

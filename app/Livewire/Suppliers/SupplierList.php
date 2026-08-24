@@ -308,7 +308,7 @@ class SupplierList extends Component
                 // 2. Eliminar (soft delete) el registro de proveedor
                 $supplier->delete();
 
-                // 3. Person NO se toca — sigue existiendo intacta
+                // 3. Person NO se toca - sigue existiendo intacta
             });
 
             $this->dispatch('supplier-saved'); // refresca el listado

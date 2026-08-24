@@ -2,6 +2,8 @@
 
 namespace App\Livewire\ExplosiveDispatches;
 
+use App\Constants\Permisos;
+use App\Models\CompanySetting;
 use App\Models\Employee;
 use App\Models\ExplosiveFieldDispatch;
 use Livewire\Attributes\Title;
@@ -23,7 +25,22 @@ class ExplosiveFieldDispatchList extends Component
             ->where('person_id', auth()->user()->person_id)
             ->value('id');
     }
+    public function getRestrictDistributionProperty(): bool
+    {
+        return CompanySetting::current()->restrict_distribution_to_requester;
+    }
+    public function canDistribute(ExplosiveFieldDispatch $dispatch): bool
+    {
+        if (!$dispatch->isPendingDistribution()) {
+            return false;
+        }
 
+        if ($this->restrictDistribution) {
+            return $dispatch->requested_by_employee_id === $this->myEmployeeId;
+        }
+
+        return auth()->user()->can(Permisos::EXPLOSIVOS_DISTRIBUIR);
+    }
     public function getDispatchesProperty()
     {
         return ExplosiveFieldDispatch::query()

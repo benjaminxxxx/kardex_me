@@ -29,7 +29,7 @@
             @elseif ($this->isFirstKardex)
                 {{-- ===== Primer kardex del producto: mes/año libre ===== --}}
                 <flux:text class="text-muted text-sm">
-                    Este producto no tiene kardex previo. Elige libremente el mes de inicio —
+                    Este producto no tiene kardex previo. Elige libremente el mes de inicio -
                     el sistema sugerirá el saldo inicial calculado desde los movimientos reales
                     anteriores a esa fecha, pero puedes ajustarlo manualmente.
                 </flux:text>

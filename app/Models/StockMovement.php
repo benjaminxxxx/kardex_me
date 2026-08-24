@@ -16,6 +16,7 @@ class StockMovement extends Model
         'movement_date',
         'warehouse_id',
         'source_type',
+        'reason',
         'source_id',
         'purchase_item_id'
     ];
@@ -48,7 +49,7 @@ class StockMovement extends Model
     public function getSourceLabelAttribute(): string
     {
         if (!$this->source_type) {
-            return 'Ajuste manual';
+            return $this->reason ?: 'Ajuste manual';
         }
 
         $settings = CompanySetting::current();

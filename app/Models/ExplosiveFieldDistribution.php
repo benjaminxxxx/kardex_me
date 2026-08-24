@@ -98,7 +98,7 @@ class ExplosiveFieldDistribution extends Model
     /**
      * Busca el factor de conversión de una presentación por nombre parcial
      * (ej. "caja", "cajita") del producto asignado a ese rol en el despacho.
-     * Devuelve null si no existe esa presentación — evita inventar un número.
+     * Devuelve null si no existe esa presentación  evita inventar un número.
      */
     private function presentationFactor(string $productColumn, string $nameContains): ?float
     {

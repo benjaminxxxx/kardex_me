@@ -138,7 +138,6 @@ class ExplosiveFieldDispatchForm extends Component
 
     public function confirmAndSave(ExplosiveFieldDispatchService $service): void
     {
-
         if (!$this->dispatchedByEmployeeId) {
             Flux::toast('Tu usuario no está vinculado a un registro de empleado.', 'Error');
             return;

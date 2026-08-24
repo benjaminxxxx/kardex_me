@@ -15,6 +15,47 @@ class StockService
      * el saldo materializado en el mismo paso, atómicamente.
      */
     public function registerMovement(
+        string $direction,
+        int $productId,
+        int $warehouseId,
+        float $quantity,
+        string $movementDate,
+        ?string $sourceType = null,
+        ?int $sourceId = null,
+        array $extra = []
+    ): StockMovement {
+        return DB::transaction(function () use ($direction, $productId, $warehouseId, $quantity, $movementDate, $sourceType, $sourceId, $extra) {
+
+            // Validación preventiva en salidas manuales
+            if ($direction === 'out') {
+                $disponible = self::available($productId, $warehouseId);
+                if ($quantity > $disponible) {
+                    throw new \RuntimeException("Stock insuficiente. Disponible: {$disponible}, solicitado: {$quantity}.");
+                }
+            }
+
+            $movement = StockMovement::create(array_merge([
+                'direction' => $direction,
+                'product_id' => $productId,
+                'warehouse_id' => $warehouseId,
+                'quantity' => $quantity,
+                'movement_date' => $movementDate,
+                'source_type' => $sourceType,
+                'source_id' => $sourceId,
+            ], $extra));
+
+            $stock = ProductStock::firstOrCreate(
+                ['product_id' => $productId, 'warehouse_id' => $warehouseId],
+                ['quantity' => 0]
+            );
+
+            $delta = $direction === 'in' ? $quantity : -$quantity;
+            $stock->increment('quantity', $delta);
+
+            return $movement;
+        });
+    }
+    /*public function registerMovement(
         string $direction, // 'in' | 'out'
         int $productId,
         int $warehouseId,
@@ -46,7 +87,7 @@ class StockService
 
             return $movement;
         });
-    }
+    }*/
 
     /**
      * Traslado entre almacenes: exactamente tu ejemplo de "sacar de oficina,
@@ -130,26 +171,38 @@ class StockService
             'difference' => $cacheado - $real,
         ];
     }
-    /**
-     * Elimina todos los movimientos generados por un origen (ej. una Purchase)
-     * y revierte su efecto en product_stocks antes de borrarlos.
-     * Se usa al editar un documento que ya generó movimientos, para
-     * "deshacer" limpiamente antes de volver a registrar los nuevos valores.
-     */
-    public function reverseMovementsForSource(string $sourceType, int $sourceId): void
-    {
-        DB::transaction(function () use ($sourceType, $sourceId) {
+
+    public function reverseMovementsForSource(
+        string $sourceType,
+        int $sourceId,
+        ?int $warehouseId = null,
+        ?int $productId = null
+    ): void {
+        DB::transaction(function () use ($sourceType, $sourceId, $warehouseId, $productId) {
             $movimientos = StockMovement::where('source_type', $sourceType)
                 ->where('source_id', $sourceId)
+                ->when($warehouseId, fn($q) => $q->where('warehouse_id', $warehouseId))
+                ->when($productId, fn($q) => $q->where('product_id', $productId))
                 ->get();
 
             foreach ($movimientos as $mov) {
+                // Verificar si el movimiento ya fue procesado en el Kárdex
+                $tieneKardex = DB::table('kardex_movements')
+                    ->where('stock_movement_id', $mov->id)
+                    ->exists();
+
+                if ($tieneKardex) {
+                    throw new \RuntimeException(
+                        "El movimiento de stock #{$mov->id} ya está procesado en el Kárdex para este periodo. " .
+                        "No se puede modificar la distribución. Debe eliminar primero el Kárdex generado y volver a intentar."
+                    );
+                }
+
                 $stock = ProductStock::firstOrCreate(
                     ['product_id' => $mov->product_id, 'warehouse_id' => $mov->warehouse_id],
                     ['quantity' => 0]
                 );
 
-                // Revertir: si fue 'in', restamos; si fue 'out', sumamos de vuelta
                 $delta = $mov->direction === 'in' ? -$mov->quantity : $mov->quantity;
                 $stock->increment('quantity', $delta);
 

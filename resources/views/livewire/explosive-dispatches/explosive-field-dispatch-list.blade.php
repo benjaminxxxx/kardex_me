@@ -92,21 +92,17 @@
                         </flux:table.cell>
 
                         <flux:table.cell>
-
-                            @if (
-                                    $dispatch->requested_by_employee_id === $this->myEmployeeId &&
-                                    $dispatch->isPendingDistribution()
-                                )
-
+                            @if ($this->canDistribute($dispatch))
                                 <flux:button size="sm" variant="primary"
                                     href="{{ route('explosive-dispatches.distribute', $dispatch) }}">
-
                                     Distribuir
-
                                 </flux:button>
-
+                            @else
+                                <flux:button size="sm" variant="subtle"
+                                    href="{{ route('explosive-dispatches.distribute', $dispatch) }}">
+                                    Corregir distribución
+                                </flux:button>
                             @endif
-
                         </flux:table.cell>
 
                     </flux:table.row>

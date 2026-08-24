@@ -49,10 +49,28 @@
         </flux:text>
     </flux:card>
 
+    <flux:card class="space-y-4">
+        <flux:heading size="sm" class="text-muted uppercase tracking-wide">Reglas de distribución</flux:heading>
+
+        <flux:field variant="inline">
+            <flux:label>Solo quien retiró el despacho puede distribuirlo</flux:label>
+            <flux:switch wire:model="restrictDistributionToRequester" />
+        </flux:field>
+
+        <flux:text size="sm" class="text-muted">
+            @if ($restrictDistributionToRequester)
+                Activado: si Juan retiró el despacho, solo Juan puede registrar su distribución.
+            @else
+                Desactivado: cualquier usuario con permiso de distribución puede repartir cualquier despacho pendiente, sin
+                importar quién lo retiró.
+            @endif
+        </flux:text>
+    </flux:card>
+
     <div class="flex justify-end">
         @can(\App\Constants\Permisos::CONFIGURACION_GESTIONAR)
             <flux:button variant="primary" wire:click="save" icon="check">Guardar configuración</flux:button>
         @endcan
-        
+
     </div>
 </div>

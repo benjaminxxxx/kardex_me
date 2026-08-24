@@ -3,6 +3,7 @@
 namespace App\Livewire\Kardex;
 
 use App\Models\Kardex;
+use Flux\Flux;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -25,6 +26,8 @@ class KardexList extends Component
 
     public ?int $productId = null;
     public ?string $productLabel = null;
+    public ?int $deletingKardexId = null;
+    public bool $deleteKardexModal = false;
 
     protected $listeners = ['kardex-saved' => '$refresh'];
 
@@ -48,15 +51,46 @@ class KardexList extends Component
         }
     }
 
-    public function updatedYear(): void { $this->resetPage(); }
-    public function updatedMonth(): void { $this->resetPage(); }
-    public function updatedStatus(): void { $this->resetPage(); }
+    public function updatedYear(): void
+    {
+        $this->resetPage();
+    }
+    public function updatedMonth(): void
+    {
+        $this->resetPage();
+    }
+    public function updatedStatus(): void
+    {
+        $this->resetPage();
+    }
 
     public function clearFilters(): void
     {
         $this->reset('year', 'month', 'status', 'productId', 'productLabel');
     }
+    public function confirmDelete(int $kardexId): void
+    {
+        $this->deletingKardexId = $kardexId;
+        $this->deleteKardexModal = true;
+    }
 
+    public function deleteKardex(): void
+    {
+        try {
+            if (!$this->deletingKardexId) {
+                return;
+            }
+
+            $kardex = Kardex::findOrFail($this->deletingKardexId);
+            $kardex->delete();
+            $this->deletingKardexId = null;
+            $this->deleteKardexModal = false;
+
+            Flux::toast('Kárdex eliminado correctamente.');
+        } catch (\Throwable $th) {
+            Flux::toast($th->getMessage(), 'Error');
+        }
+    }
     public function getAvailableYearsProperty()
     {
         return Kardex::selectRaw('DISTINCT year')
@@ -68,10 +102,10 @@ class KardexList extends Component
     {
         return Kardex::query()
             ->with('product')
-            ->when($this->year, fn ($q) => $q->where('year', $this->year))
-            ->when($this->month, fn ($q) => $q->where('month', $this->month))
-            ->when($this->status, fn ($q) => $q->where('status', $this->status))
-            ->when($this->productId, fn ($q) => $q->where('product_id', $this->productId))
+            ->when($this->year, fn($q) => $q->where('year', $this->year))
+            ->when($this->month, fn($q) => $q->where('month', $this->month))
+            ->when($this->status, fn($q) => $q->where('status', $this->status))
+            ->when($this->productId, fn($q) => $q->where('product_id', $this->productId))
             ->orderByDesc('year')
             ->orderByDesc('month')
             ->paginate(15);

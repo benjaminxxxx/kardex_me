@@ -25,7 +25,7 @@ class KardexService
      * Resuelve tipo (código SUNAT Tabla 10), serie y número de comprobante
      * para el snapshot del Kardex. Si el origen no es una Purchase, o si
      * es una Purchase con nota_venta (sin código SUNAT), se guarda null
-     * en document_type — indicando que no hay comprobante tributario formal.
+     * en document_type - indicando que no hay comprobante tributario formal.
      */
     private function resolveDocumentReference(StockMovement $mov): array
     {
