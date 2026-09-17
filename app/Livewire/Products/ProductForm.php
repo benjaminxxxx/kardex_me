@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductPresentation;
 use App\Models\Unit;
+use App\Services\Generators\CodeGeneratorService;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -22,7 +23,7 @@ class ProductForm extends Component
     public string $activeTab = 'general';
 
     // ===== Datos generales =====
-    public string $code = '';
+    //public string $code = '';
     public string $name = '';
     public ?string $chemicalName = null;
     public ?string $brand = null;
@@ -45,7 +46,7 @@ class ProductForm extends Component
         if ($product && $product->exists) {
             $this->mode = 'edit';
             $this->productId = $product->id;
-            $this->code = $product->code;
+            //$this->code = $product->code;
             $this->name = $product->name;
             $this->chemicalName = $product->chemical_name;
             $this->brand = $product->brand;
@@ -65,15 +66,16 @@ class ProductForm extends Component
                 'is_active' => $p->is_active,
             ])->toArray();
         }
-
+/*
         if (empty($this->presentations)) {
             $this->presentations = [$this->emptyPresentation()];
-        }
+        }*/
     }
     public function getExplosiveRolesProperty()
     {
         return ExplosiveRole::where('is_active', true)->orderBy('sort_order')->get();
     }
+    
     private function emptyPresentation(): array
     {
         return [
@@ -114,11 +116,11 @@ class ProductForm extends Component
 
     private function rules(): array
     {
-        $codeUnique = Rule::unique('products', 'code')->ignore($this->productId);
+        //$codeUnique = Rule::unique('products', 'code')->ignore($this->productId);
         $barcodeUnique = Rule::unique('products', 'barcode')->ignore($this->productId);
 
         return [
-            'code' => ['required', 'string', 'max:30', $codeUnique],
+            //'code' => ['required', 'string', 'max:30', $codeUnique],
             'name' => ['required', 'string', 'max:255'],
             'chemicalName' => ['nullable', 'string', 'max:255'],
             'brand' => ['nullable', 'string', 'max:255'],
@@ -151,8 +153,11 @@ class ProductForm extends Component
 
         try {
             DB::transaction(function () {
+                $lastProductId = Product::lockForUpdate()->max('id');
+                $code = CodeGeneratorService::generateCode($lastProductId, 'PROD');
+
                 $payload = [
-                    'code' => $this->code,
+                    'code' => $code,
                     'name' => $this->name,
                     'chemical_name' => $this->chemicalName,
                     'brand' => $this->brand,
@@ -172,7 +177,7 @@ class ProductForm extends Component
                 } else {
                     $product = Product::create($payload);
                 }
-
+                
                 foreach ($this->presentations as $presentation) {
                     ProductPresentation::create([
                         'product_id' => $product->id,

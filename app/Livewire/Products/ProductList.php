@@ -24,8 +24,8 @@ class ProductList extends Component
     #[Url]
     public string $categoryId = '';
 
-    public string $sortBy = 'code';
-    public string $sortDirection = 'asc';
+    public string $sortBy = 'created_at';
+    public string $sortDirection = 'desc';
     public bool $showTrashed = false;
 
     protected $listeners = [

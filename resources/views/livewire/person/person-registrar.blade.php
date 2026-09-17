@@ -1,4 +1,4 @@
-<flux:modal wire:model.self="show" class="md:w-[720px]">
+<flux:modal wire:model.self="show" class="w-full max-w-full md:max-w-lg lg:max-w-[720px]">
     <div class="space-y-6">
         <div>
             <flux:heading size="lg">
@@ -15,8 +15,8 @@
             <flux:radio value="company" label="Empresa" class="flex-1" />
         </flux:radio.group>
 
-        {{-- ===== Identidad ===== --}}
         <div class="grid gap-4 md:grid-cols-3">
+            {{-- ===== Identidad ===== --}}
             <flux:select wire:model="documentType" label="Tipo de documento">
                 @if ($type === 'company')
                     <flux:select.option value="RUC">RUC</flux:select.option>
@@ -27,12 +27,10 @@
                 @endif
             </flux:select>
             <flux:input wire:model="documentNumber" label="N° de documento" class="md:col-span-2" />
-        </div>
 
-        @if ($type === 'individual')
-            {{-- ===== Solo Persona Natural ===== --}}
-            <div class="grid gap-4 md:grid-cols-2">
-                <flux:input wire:model="names" label="Nombres" class="md:col-span-2" />
+            @if ($type === 'individual')
+                {{-- ===== Solo Persona Natural ===== --}}
+                <flux:input wire:model="names" label="Nombres" class="md:col-span-3" />
                 <flux:input wire:model="paternalLastName" label="Apellido paterno" />
                 <flux:input wire:model="maternalLastName" label="Apellido materno" />
 
@@ -49,34 +47,30 @@
                     <flux:select.option value="divorced">Divorciado(a)</flux:select.option>
                     <flux:select.option value="widowed">Viudo(a)</flux:select.option>
                 </flux:select>
-            </div>
-        @else
-            {{-- ===== Solo Empresa ===== --}}
-            <div class="grid gap-4 md:grid-cols-2">
+            @else
+                {{-- ===== Solo Empresa ===== --}}
                 <flux:input wire:model="companyName" label="Nombre comercial" />
-                <flux:input wire:model="legalName" label="Razón social" />
-            </div>
-        @endif
+                <flux:input wire:model="legalName" label="Razón social" class="md:col-span-2" />
+            @endif
 
-        <flux:separator />
-
-        {{-- ===== Contacto (compartido) ===== --}}
-        <div class="grid gap-4 md:grid-cols-3">
+            {{-- ===== Contacto ===== --}}
             <flux:input wire:model="mobile" label="Celular" />
             <flux:input wire:model="phone" label="Teléfono fijo" />
             <flux:input wire:model="email" type="email" label="Correo" autocomplete="off" />
-        </div>
 
-        {{-- ===== Dirección (compartido) ===== --}}
-        <div class="grid gap-4 md:grid-cols-3">
+            {{-- ===== Dirección ===== --}}
             <flux:input wire:model="country" label="País" />
             <flux:input wire:model="state" label="Departamento / Estado" />
             <flux:input wire:model="city" label="Provincia / Ciudad" />
             <flux:input wire:model="district" label="Distrito" />
             <flux:input wire:model="postalCode" label="Código postal" />
+            <flux:input wire:model="address" label="Dirección" class="md:col-span-3" />
+
+            {{-- ===== Notas ===== --}}
+            <div class="col-span-3">
+                <flux:textarea wire:model="notes" label="Notas"/>
+            </div>
         </div>
-        <flux:input wire:model="address" label="Dirección" />
-        <flux:textarea wire:model="notes" label="Notas" />
 
         <div class="flex justify-between">
             <flux:button variant="ghost" wire:click="cancel" icon="arrow-left">

@@ -10,6 +10,7 @@ use Flux\Flux;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -18,12 +19,12 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 #[Title('Empleados')]
 class EmployeeList extends Component
 {
-    use WithPagination;
+    use WithPagination, WithoutUrlPagination;
 
     public string $search = '';
     public string $status = '';
     public string $access = ''; // '' | 'with_user' | 'without_user'
-    public string $sortBy = 'employee_code';
+    public string $sortBy = 'created_at';
     public string $sortDirection = 'desc';
     #[On('person-edited')]
 
@@ -98,11 +99,10 @@ class EmployeeList extends Component
             ->when($this->status !== '', fn($q) => $q->where('status', $this->status))
             ->when($this->access === 'with_user', fn($q) => $q->whereHas('person.user'))
             ->when($this->access === 'without_user', fn($q) => $q->whereDoesntHave('person.user'))
-            ->orderBy(
-                in_array($this->sortBy, ['employee_code', 'hire_date', 'status']) ? $this->sortBy : 'employee_code',
+            ->orderBy($this->sortBy,
                 $this->sortDirection
             )
-            ->paginate(15);
+            ->paginate(10);
     }
     public function clearFilters(): void
     {

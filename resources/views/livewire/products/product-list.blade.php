@@ -76,7 +76,10 @@
         <flux:table.rows>
             @forelse($products as $product)
                 <flux:table.row :key="$product->id">
-                    <flux:table.cell variant="strong">{{ $product->code }}</flux:table.cell>
+                    <flux:table.cell variant="strong">
+                        <flux:link as="button" wire:click="viewDetails({{ $product->id }})">{{ $product->code }}
+                        </flux:link>
+                    </flux:table.cell>
 
                     <flux:table.cell>
                         <div class="flex flex-col gap-1">

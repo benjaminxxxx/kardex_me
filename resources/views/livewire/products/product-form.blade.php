@@ -16,19 +16,11 @@
 
         <flux:tab.panel name="general">
             <flux:card class="space-y-4">
-                <div class="grid gap-4 md:grid-cols-2">
-                    <flux:input wire:model="code" label="Código interno" placeholder="FULM-001" />
+                <div class="grid gap-4 md:grid-cols-3">
                     <flux:input wire:model="name" label="Nombre" class="md:col-span-1" />
-                </div>
-
-                <div class="grid gap-4 md:grid-cols-2">
                     <flux:input wire:model="chemicalName" label="Nombre químico (opcional)" placeholder="Emulnor" />
                     <flux:input wire:model="brand" label="Marca" />
                 </div>
-
-                
-
-
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <flux:input wire:model="barcode" label="Código de barras (opcional)" />
@@ -37,7 +29,8 @@
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-3">
-                    <flux:select wire:model="categoryId" label="Categoría" placeholder="Seleccionar...">
+                    <flux:select wire:model="categoryId" label="Categoría">
+                        <flux:select.option value="">Seleccionar...</flux:select.option>
                         @foreach ($this->categories as $category)
                             <flux:select.option value="{{ $category->id }}">
                                 {{ $category->parent_id ? '— ' : '' }}{{ $category->name }}
@@ -45,15 +38,16 @@
                         @endforeach
                     </flux:select>
 
-                    <flux:select wire:model="unitId" label="Unidad base (mínima)" placeholder="Seleccionar...">
+                    <flux:select wire:model="unitId"  label="Unidad base (mínima)">
+                        <flux:select.option value="">Seleccionar...</flux:select.option>
                         @foreach ($this->units as $unit)
                             <flux:select.option value="{{ $unit->id }}">
                                 {{ $unit->name }} ({{ $unit->alias ?: $unit->sunat_code }})
                             </flux:select.option>
                         @endforeach
                     </flux:select>
-                    <flux:select wire:model="explosiveRoleId" label="Rol en armada de explosivos (opcional)"
-                        placeholder="No aplica / no es ingrediente de armada">
+                    <flux:select wire:model="explosiveRoleId" label="Rol en armada de explosivos (opcional)">
+                        <flux:select.option value="">No aplica / no es ingrediente de armada</flux:select.option>
                         @foreach ($this->explosiveRoles as $role)
                             <flux:select.option value="{{ $role->id }}">{{ $role->name }}</flux:select.option>
                         @endforeach
@@ -77,10 +71,8 @@
                             <flux:input wire:model="presentations.{{ $index }}.name" label="Nombre de presentación"
                                 placeholder="Caja, Rollo, Bolsa..." class="max-w-xs" />
 
-                            @if (count($presentations) > 1)
-                                <flux:button size="sm" variant="ghost" icon="trash"
+                            <flux:button size="sm" variant="ghost" icon="trash"
                                     wire:click="removePresentation({{ $index }})" />
-                            @endif
                         </div>
 
                         <div class="grid gap-4 md:grid-cols-2">
