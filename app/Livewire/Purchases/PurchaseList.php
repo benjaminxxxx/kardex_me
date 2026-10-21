@@ -10,6 +10,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Services\Purchase\ExportToExcelService;
+use App\Services\PurchaseService;
 
 #[Title('Compras')]
 class PurchaseList extends Component
@@ -34,6 +35,10 @@ class PurchaseList extends Component
     public string $sortBy = 'document_date';
     public string $sortDirection = 'desc';
     public bool $showTrashed = false;
+
+    public bool $showDeleteModal = false;
+    public ?int $deletingPurchaseId = null;
+    public string $deletionReason = '';
 
     protected $listeners = ['purchase-saved' => '$refresh'];
 
@@ -91,16 +96,49 @@ class PurchaseList extends Component
             ->paginate(10);
     }
 
-    public function deletePurchase(int $purchaseId): void
+    public function confirmDelete(int $purchaseId): void
     {
-        Purchase::findOrFail($purchaseId)->delete();
-        Flux::toast('Compra eliminada. Puedes restaurarla desde "Ver eliminadas". El stock generado permanece hasta que se elimine definitivamente.');
+        $this->resetValidation();
+        $this->deletingPurchaseId = $purchaseId;
+        $this->deletionReason = '';
+        $this->showDeleteModal = true;
     }
 
-    public function restorePurchase(int $purchaseId): void
+    public function deletePurchase(PurchaseService $service): void
     {
-        Purchase::onlyTrashed()->findOrFail($purchaseId)->restore();
-        Flux::toast('Compra restaurada correctamente.');
+        $this->validate(
+            ['deletionReason' => ['required', 'string', 'min:10', 'max:1000']],
+            [],
+            ['deletionReason' => 'motivo de eliminación']
+        );
+
+        try {
+            $service->delete(Purchase::findOrFail($this->deletingPurchaseId), trim($this->deletionReason));
+
+            $this->showDeleteModal = false;
+            $this->deletingPurchaseId = null;
+            $this->deletionReason = '';
+            Flux::toast('Compra eliminada y stock revertido. Quedó registrada en Auditoría.');
+        } catch (\Throwable $th) {
+            Flux::toast($th->getMessage(), 'Error');
+        }
+    }
+
+    public function restorePurchase(int $purchaseId, PurchaseService $service): void
+    {
+        try {
+            $service->restore(Purchase::onlyTrashed()->findOrFail($purchaseId));
+            Flux::toast('Compra restaurada correctamente.');
+        } catch (\Throwable $th) {
+            Flux::toast($th->getMessage(), 'Error');
+        }
+    }
+
+    public function getDeletingPurchaseProperty(): ?Purchase
+    {
+        return $this->deletingPurchaseId
+            ? Purchase::with('supplier.person')->find($this->deletingPurchaseId)
+            : null;
     }
 
     public function exportToExcel(ExportToExcelService $service)

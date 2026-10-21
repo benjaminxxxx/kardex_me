@@ -107,9 +107,11 @@
                         <flux:button size="sm" variant="ghost" icon="eye" href="{{ route('kardex.show', $kardex) }}">
                             Ver
                         </flux:button>
-                        <flux:button size="sm" variant="danger" icon="trash" wire:click="confirmDelete({{ $kardex->id }})">
-                            Eliminar
-                        </flux:button>
+                        @if ($kardex->status !== 'closed')
+                            <flux:button size="sm" variant="danger" icon="trash" wire:click="confirmDelete({{ $kardex->id }})">
+                                Eliminar
+                            </flux:button>
+                        @endif
                     </flux:table.cell>
                 </flux:table.row>
             @empty
@@ -128,9 +130,12 @@
 
                 <flux:text class="mt-2">
                     Está a punto de eliminar este registro de Kárdex.<br>
-                    Esta acción revertirá los saldos asociados y no se puede deshacer.
+                    Esta acción no se puede deshacer. Quedará registrada en Auditoría con una copia de sus saldos.
                 </flux:text>
             </div>
+
+            <flux:textarea wire:model="deletionReason" label="Motivo de la eliminación" rows="3"
+                placeholder="Ej.: se debe recalcular tras corregir una compra..." />
 
             <div class="flex gap-2">
                 <flux:spacer />

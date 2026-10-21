@@ -1,0 +1,78 @@
+[
+    {
+        "date": "2026-10-20",
+        "title": "Auditoría, corrección de stock y mejoras de seguridad",
+        "changes": [
+            {
+                "type": "nuevo",
+                "module": "Auditoría",
+                "description": "Nuevo menú Sistema > Auditoría. Registra quién, cuándo, desde qué IP y por qué se hizo cada acción crítica: eliminaciones de compras y kárdex, ajustes manuales de stock, cambios de acceso, roles, permisos y configuración. Los registros no se pueden editar ni borrar."
+            },
+            {
+                "type": "nuevo",
+                "module": "Compras",
+                "description": "Al eliminar una compra ahora se pide el motivo. En \"Ver eliminadas\" se muestra la fecha, hora, quién la eliminó y el motivo."
+            },
+            {
+                "type": "correccion",
+                "module": "Compras",
+                "description": "Eliminar una compra ahora revierte el stock que había ingresado. Antes el stock se quedaba sumado. No se permite eliminar una compra cuyo stock ya fue despachado o que está en un kárdex cerrado. Restaurar una compra vuelve a registrar su stock."
+            },
+            {
+                "type": "correccion",
+                "module": "Stock",
+                "description": "Se corrigió el stock de las compras eliminadas anteriormente. Los casos que no se pudieron corregir automáticamente quedan marcados en Auditoría como \"Stock requiere revisión\"."
+            },
+            {
+                "type": "correccion",
+                "module": "Productos",
+                "description": "Ya se pueden editar los productos que tienen compras registradas (antes mostraba un error). Una presentación que ya se usó en compras se desactiva en lugar de borrarse."
+            },
+            {
+                "type": "mejora",
+                "module": "Kárdex",
+                "description": "Un kárdex cerrado ya no se puede eliminar. Para eliminar uno abierto se pide el motivo y queda registrado en Auditoría."
+            },
+            {
+                "type": "mejora",
+                "module": "Despacho de explosivos",
+                "description": "Si dos despachos del mismo producto se registran al mismo tiempo, el sistema valida el stock de uno en uno para que no salga más de lo disponible."
+            },
+            {
+                "type": "mejora",
+                "module": "Despacho de explosivos",
+                "description": "El botón Distribuir o Corregir distribución solo aparece para quien realmente puede usarlo, según su permiso y la opción \"Solo quien retiró el despacho puede distribuirlo\" en Configuración."
+            },
+            {
+                "type": "correccion",
+                "module": "Empleados",
+                "description": "En Administrar acceso, el botón \"Actualizar correo\" borraba la contraseña en lugar de cambiar el correo, y el usuario ya no podía ingresar. Ahora cambia solo el correo."
+            },
+            {
+                "type": "nuevo",
+                "module": "Panel de control",
+                "description": "El panel muestra despachos por distribuir, compras del mes, kárdex abiertos, stock actual por almacén, actividad crítica reciente y alertas (stock negativo, saldos que no cuadran, kárdex atrasados)."
+            },
+            {
+                "type": "mejora",
+                "module": "General",
+                "description": "Las tablas muestran el mensaje \"Cargando...\" al cambiar de página."
+            },
+            {
+                "type": "nuevo",
+                "module": "General",
+                "description": "Modo oscuro: elige Claro, Oscuro o Sistema desde el botón del menú lateral."
+            },
+            {
+                "type": "mejora",
+                "module": "General",
+                "description": "Nuevo diseño visual: fondo blanco, grises más sobrios y un solo color de acento naranja para botones y enlaces. Nueva tipografía, más compacta y fácil de leer en las tablas. Las cifras quedan alineadas en columnas."
+            },
+            {
+                "type": "nuevo",
+                "module": "Actualizaciones",
+                "description": "Nuevo menú Actualizaciones, donde se publican los cambios del sistema por fecha."
+            }
+        ]
+    }
+]

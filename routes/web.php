@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\Audit\AuditLogList;
+use App\Livewire\Changelog\ChangelogList;
 use App\Livewire\ExplosiveDispatches\ExplosiveDistributionReportList;
 use App\Livewire\ExplosiveDispatches\ExplosiveFieldDispatchList;
 use App\Livewire\ExplosiveDispatches\ExplosiveFieldDistributionForm;
@@ -168,6 +170,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/configuracion', CompanySettingForm::class)
         ->middleware('can:' . Permisos::CONFIGURACION_VER)
         ->name('settings.company');
+
+    // Visible para todos los usuarios autenticados
+    Route::get('/actualizaciones', ChangelogList::class)->name('changelog.index');
+
+    Route::get('/auditoria', AuditLogList::class)
+        ->middleware('can:' . Permisos::AUDITORIA_VER)
+        ->name('audit.index');
 
 });
 

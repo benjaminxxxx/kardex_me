@@ -70,4 +70,7 @@ class Permisos
     const COMPRAS_VER = 'compras.ver';
     const COMPRAS_GESTIONAR = 'compras.gestionar';
     const MOVIMIENTOS_VER = 'movimientos.ver';
+
+    // Bitácora de acciones críticas (eliminaciones, stock, accesos)
+    const AUDITORIA_VER = 'auditoria.ver';
 }

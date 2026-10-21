@@ -8,33 +8,48 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Re-assign Flux's gray of choice... */
+/*
+ * Tema basado en Brex (DESIGN.md): lienzo blanco, grises fríos y un solo acento naranja "Ember".
+ * Se configura solo con las variables de theming de Flux, sin tocar sus componentes.
+ */
+
+/* Grises de Brex en la escala que usa Flux (zinc) */
 @theme {
-    --color-zinc-50: var(--color-stone-50);
-    --color-zinc-100: var(--color-stone-100);
-    --color-zinc-200: var(--color-stone-200);
-    --color-zinc-300: var(--color-stone-300);
-    --color-zinc-400: var(--color-stone-400);
-    --color-zinc-500: var(--color-stone-500);
-    --color-zinc-600: var(--color-stone-600);
-    --color-zinc-700: var(--color-stone-700);
-    --color-zinc-800: var(--color-stone-800);
-    --color-zinc-900: var(--color-stone-900);
-    --color-zinc-950: var(--color-stone-950);
+    --color-zinc-50: #f9f9fb;
+    --color-zinc-100: #f3f3f7;  /* Fog: superficies secundarias */
+    --color-zinc-200: #e6e7ec;  /* bordes finos */
+    --color-zinc-300: #b9bbc6;  /* Mist: bordes de inputs, deshabilitados */
+    --color-zinc-400: #8b8d98;  /* Steel: íconos, placeholders */
+    --color-zinc-500: #6f737b;  /* Pewter: texto secundario */
+    --color-zinc-600: #60646c;  /* Graphite */
+    --color-zinc-700: #3b3f47;
+    --color-zinc-800: #22262d;
+    --color-zinc-900: #15191e;  /* Carbon: superficies oscuras */
+    --color-zinc-950: #000710;  /* Abyss: fondo del modo oscuro */
 }
 
+/* Acento Ember */
 @theme {
-    --color-accent: var(--color-amber-400);
-    --color-accent-content: var(--color-amber-600);
-    --color-accent-foreground: var(--color-amber-950);
+    --color-accent: #ff5900;            /* fondo de botones principales */
+    --color-accent-content: #d14800;    /* texto y enlaces: Ember oscurecido para leerse bien sobre blanco */
+    --color-accent-foreground: #ffffff; /* texto sobre el acento */
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-amber-400);
-        --color-accent-content: var(--color-amber-400);
-        --color-accent-foreground: var(--color-amber-950);
+        --color-accent: #ff5900;
+        --color-accent-content: #ff7a33;
+        --color-accent-foreground: #ffffff;
     }
+}
+
+/* Tipografía: Inter con el tracking ajustado de Brex */
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    /* Botones, inputs y tarjetas a 12px; etiquetas a 6px */
+    --radius-lg: 0.75rem;
+    --radius-xl: 0.75rem;
 }
 
 @layer base {
@@ -45,6 +60,16 @@
     ::backdrop,
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
+    }
+
+    body {
+        letter-spacing: -0.01em;
+        font-feature-settings: 'cv01', 'cv10', 'ss03';
+    }
+
+    /* Cifras de ancho fijo para que las columnas numéricas queden alineadas */
+    [data-flux-table] {
+        font-variant-numeric: tabular-nums;
     }
 }
 
@@ -59,9 +84,5 @@
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-white dark:ring-offset-zinc-950;
 }
-
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */

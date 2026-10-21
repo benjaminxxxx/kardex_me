@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Settings;
 
+use App\Models\AuditLog;
 use App\Models\CompanySetting;
 use App\Models\Warehouse;
+use App\Services\AuditLogger;
 use Flux\Flux;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -55,7 +57,8 @@ class CompanySettingForm extends Component
         $this->validate($this->rules());
 
         try {
-            CompanySetting::current()->update([
+            $setting = CompanySetting::current();
+            $data = [
                 'company_name' => $this->companyName ?: null,
                 'ruc' => $this->ruc ?: null,
                 'fiscal_address' => $this->fiscalAddress ?: null,
@@ -63,7 +66,21 @@ class CompanySettingForm extends Component
                 'reception_warehouse_id' => $this->receptionWarehouseId ?: null,
                 'purchase_default_warehouse_id' => $this->purchaseDefaultWarehouseId ?: null,
                 'restrict_distribution_to_requester' => $this->restrictDistributionToRequester,
-            ]);
+            ];
+
+            [$old, $new] = AuditLogger::diff($setting->only(array_keys($data)), $data);
+            $setting->update($data);
+
+            if ($old || $new) {
+                AuditLogger::log(
+                    'settings.updated',
+                    'Configuración de la empresa modificada: ' . implode(', ', array_keys($new)),
+                    $setting,
+                    old: $old,
+                    new: $new,
+                    severity: AuditLog::SEVERITY_WARNING,
+                );
+            }
 
             Flux::toast('Configuración actualizada correctamente.');
         } catch (\Throwable $th) {

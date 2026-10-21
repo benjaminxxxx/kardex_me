@@ -90,7 +90,18 @@ class MiningLaborList extends Component
 
     public function forceDeleteLabor(int $laborId): void
     {
-        MiningLabor::onlyTrashed()->findOrFail($laborId)->forceDelete();
+        $labor = MiningLabor::onlyTrashed()->findOrFail($laborId);
+        $snapshot = $labor->attributesToArray();
+        $labor->forceDelete();
+
+        \App\Services\AuditLogger::log(
+            'mining_labor.force_deleted',
+            "Labor {$labor->code} eliminada definitivamente",
+            $labor,
+            old: $snapshot,
+            severity: \App\Models\AuditLog::SEVERITY_CRITICAL,
+        );
+
         Flux::toast('Labor eliminada permanentemente.');
     }
 

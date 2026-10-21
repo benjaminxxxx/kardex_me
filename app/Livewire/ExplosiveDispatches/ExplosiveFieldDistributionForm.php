@@ -43,15 +43,13 @@ class ExplosiveFieldDistributionForm extends Component
     }
     private function authorizeDistribution(ExplosiveFieldDispatch $dispatch): void
     {
-        $restringido = CompanySetting::current()->restrict_distribution_to_requester;
+        $permitido = $dispatch->canBeDistributedBy(
+            auth()->user(),
+            Employee::where('person_id', auth()->user()->person_id)->value('id'),
+            CompanySetting::current()->restrict_distribution_to_requester,
+        );
 
-        if (!$restringido) {
-            return; // cualquiera con el permiso de ruta ya puede pasar
-        }
-
-        $myEmployeeId = Employee::where('person_id', auth()->user()->person_id)->value('id');
-
-        if ($dispatch->requested_by_employee_id !== $myEmployeeId) {
+        if (!$permitido) {
             abort(403, 'Solo la persona que retiró este despacho puede distribuirlo.');
         }
     }

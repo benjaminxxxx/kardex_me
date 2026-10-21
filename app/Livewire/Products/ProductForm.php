@@ -6,6 +6,7 @@ use App\Models\ExplosiveRole;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductPresentation;
+use App\Models\PurchaseItem;
 use App\Models\Unit;
 use App\Services\Generators\CodeGeneratorService;
 use Flux\Flux;
@@ -59,6 +60,7 @@ class ProductForm extends Component
             $this->isActive = $product->is_active;
 
             $this->presentations = $product->presentations->map(fn($p) => [
+                'id' => $p->id,
                 'unit_id' => $p->unit_id,
                 'name' => $p->name,
                 'conversion_factor' => (string) $p->conversion_factor,
@@ -79,6 +81,7 @@ class ProductForm extends Component
     private function emptyPresentation(): array
     {
         return [
+            'id' => null,
             'unit_id' => null,
             'name' => '',
             'conversion_factor' => '',
@@ -153,11 +156,7 @@ class ProductForm extends Component
 
         try {
             DB::transaction(function () {
-                $lastProductId = Product::lockForUpdate()->max('id');
-                $code = CodeGeneratorService::generateCode($lastProductId, 'PROD');
-
                 $payload = [
-                    'code' => $code,
                     'name' => $this->name,
                     'chemical_name' => $this->chemicalName,
                     'brand' => $this->brand,
@@ -171,23 +170,16 @@ class ProductForm extends Component
                 ];
 
                 if ($this->mode === 'edit') {
+                    // El código del producto no cambia al editar
                     $product = Product::findOrFail($this->productId);
                     $product->update($payload);
-                    $product->presentations()->delete();
                 } else {
+                    $lastProductId = Product::lockForUpdate()->max('id');
+                    $payload['code'] = CodeGeneratorService::generateCode($lastProductId, 'PROD');
                     $product = Product::create($payload);
                 }
-                
-                foreach ($this->presentations as $presentation) {
-                    ProductPresentation::create([
-                        'product_id' => $product->id,
-                        'unit_id' => $presentation['unit_id'] ?: null,
-                        'name' => $presentation['name'],
-                        'conversion_factor' => $presentation['conversion_factor'],
-                        'is_default_purchase' => $presentation['is_default_purchase'],
-                        'is_active' => $presentation['is_active'],
-                    ]);
-                }
+
+                $this->syncPresentations($product);
 
                 $this->productId = $product->id;
             });
@@ -196,6 +188,47 @@ class ProductForm extends Component
             $this->redirect(route('products.index'), navigate: true);
         } catch (\Throwable $th) {
             Flux::toast($th->getMessage(), 'Error');
+        }
+    }
+
+    /**
+     * Actualiza las presentaciones existentes en lugar de borrarlas y recrearlas,
+     * porque las compras guardan presentation_id. Una presentación quitada que
+     * ya se usó en compras se desactiva; si nunca se usó, se elimina.
+     */
+    private function syncPresentations(Product $product): void
+    {
+        $keptIds = [];
+
+        foreach ($this->presentations as $presentation) {
+            $data = [
+                'unit_id' => $presentation['unit_id'] ?: null,
+                'name' => $presentation['name'],
+                'conversion_factor' => $presentation['conversion_factor'],
+                'is_default_purchase' => $presentation['is_default_purchase'],
+                'is_active' => $presentation['is_active'],
+            ];
+
+            $existing = !empty($presentation['id'])
+                ? $product->presentations()->find($presentation['id'])
+                : null;
+
+            if ($existing) {
+                $existing->update($data);
+                $keptIds[] = $existing->id;
+            } else {
+                $keptIds[] = $product->presentations()->create($data)->id;
+            }
+        }
+
+        $removed = $product->presentations()->whereNotIn('id', $keptIds)->get();
+
+        foreach ($removed as $presentation) {
+            $usedInPurchases = PurchaseItem::where('presentation_id', $presentation->id)->exists();
+
+            $usedInPurchases
+                ? $presentation->update(['is_active' => false])
+                : $presentation->delete();
         }
     }
 

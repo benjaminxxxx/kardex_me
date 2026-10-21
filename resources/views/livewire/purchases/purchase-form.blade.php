@@ -10,7 +10,7 @@
 
         {{-- ===== Columna izquierda: cabecera ===== --}}
         <flux:card class="space-y-4">
-            <div class="rounded-lg bg-amber-500 text-white text-center py-3 font-bold text-lg">
+            <div class="rounded-lg bg-accent text-accent-foreground text-center py-3 font-bold text-lg tabular-nums">
                 TOTAL S/. {{ number_format($this->total, 2) }}
             </div>
 
@@ -146,12 +146,12 @@
                     </flux:table>
                 </div>
 
-                <div class="rounded-lg bg-zinc-800 p-4 text-right space-y-1">
+                <div class="rounded-lg bg-zinc-100 dark:bg-zinc-800 p-4 text-right space-y-1 tabular-nums text-zinc-700 dark:text-zinc-200">
                     <div><span class="font-medium">Subtotal Neto:</span> S/. {{ number_format($this->subtotal, 2) }}
                     </div>
                     <div><span class="font-medium">IGV (Impuesto):</span> S/. {{ number_format($this->igvTotal, 2) }}
                     </div>
-                    <div class="text-amber-500 font-bold text-lg">TOTAL: S/. {{ number_format($this->total, 2) }}</div>
+                    <div class="text-accent-content font-bold text-lg">TOTAL: S/. {{ number_format($this->total, 2) }}</div>
                 </div>
             </flux:card>
         </div>

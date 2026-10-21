@@ -5,7 +5,7 @@
     @include('partials.head')
 </head>
 
-<body class="min-h-screen bg-white dark:bg-zinc-800">
+<body class="min-h-screen bg-white dark:bg-zinc-950">
     <flux:sidebar sticky collapsible class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
         <flux:sidebar.header>
             <flux:sidebar.brand href="#" logo="{{ asset('images/logo.svg') }}"
@@ -123,6 +123,7 @@
             @canany([
                     App\Constants\Permisos::ROLES_VER,
                     App\Constants\Permisos::CONFIGURACION_VER,
+                    App\Constants\Permisos::AUDITORIA_VER,
                 ])
                 <flux:sidebar.group expandable icon="cog-6-tooth" heading="Sistema" class="grid">
                     {{-- - @can(App\Constants\Permisos::USUARIOS_VER)
@@ -141,6 +142,11 @@
                             Configuración
                         </flux:navlist.item>
                     @endcan
+                    @can(App\Constants\Permisos::AUDITORIA_VER)
+                        <flux:navlist.item icon="finger-print" href="{{ route('audit.index') }}" wire:navigate>
+                            Auditoría
+                        </flux:navlist.item>
+                    @endcan
                 </flux:sidebar.group>
             @endcanany
 
@@ -149,11 +155,23 @@
 
         <flux:sidebar.spacer />
 
+        <flux:sidebar.nav>
+            <flux:sidebar.item icon="megaphone" href="{{ route('changelog.index') }}"
+                :current="request()->routeIs('changelog.index')" wire:navigate>
+                Actualizaciones
+            </flux:sidebar.item>
+        </flux:sidebar.nav>
+
+        <div class="hidden lg:flex justify-end in-data-flux-sidebar-collapsed-desktop:justify-center">
+            <x-theme-toggle />
+        </div>
+
         <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
     </flux:sidebar>
     <flux:header class="lg:hidden">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
         <flux:spacer />
+        <x-theme-toggle class="me-2" />
         <flux:dropdown position="top" align="end">
             <flux:profile :initials="auth()->user()->initials()" icon-trailing="chevron-down" />
 

@@ -60,7 +60,22 @@ class PermisosServicio
             ->pluck('name')
             ->toArray();
 
+        $antes = $rol->permissions->pluck('name')->all();
         $rol->syncPermissions($existentes);
+
+        $agregados = array_values(array_diff($existentes, $antes));
+        $quitados = array_values(array_diff($antes, $existentes));
+
+        if ($agregados || $quitados) {
+            AuditLogger::log(
+                'role.permissions_changed',
+                "Permisos del rol {$rol->name} modificados (+" . count($agregados) . ' / -' . count($quitados) . ')',
+                $rol,
+                old: ['quitados' => $quitados],
+                new: ['agregados' => $agregados],
+                severity: \App\Models\AuditLog::SEVERITY_WARNING,
+            );
+        }
     }
 
     public static function obtenerPermisosDeRol(int $roleId): array

@@ -25,6 +25,7 @@ return [
                     ['nombre' => Permisos::CONFIGURACION_GESTIONAR],
                 ],
             ],
+            ['nombre' => Permisos::AUDITORIA_VER],
         ],
     ],
     [

@@ -525,10 +525,53 @@ class KardexService
     }
     public function close(Kardex $kardex): void
     {
-        if ($kardex->movements()->count() === 0 && $kardex->total_entries_qty == 0 && $kardex->total_exits_qty == 0) {
-            // Permitir cerrar en cero (mes sin movimiento) es válido
+        // Cerrar un mes sin movimientos (en cero) también es válido
+        $kardex->update(['status' => 'closed', 'closed_at' => now()]);
+
+        AuditLogger::log(
+            'kardex.closed',
+            "Kárdex {$kardex->month}/{$kardex->year} del producto #{$kardex->product_id} cerrado",
+            $kardex,
+            new: $this->auditSnapshot($kardex),
+        );
+    }
+
+    /**
+     * Elimina un kárdex abierto (y sus líneas, que se pueden recalcular).
+     * Un kárdex cerrado no se elimina: es el saldo oficial del periodo.
+     */
+    public function delete(Kardex $kardex, string $reason): void
+    {
+        if ($kardex->status === 'closed') {
+            throw new \RuntimeException('No se puede eliminar un kárdex cerrado.');
         }
 
-        $kardex->update(['status' => 'closed', 'closed_at' => now()]);
+        DB::transaction(function () use ($kardex, $reason) {
+            $snapshot = $this->auditSnapshot($kardex);
+            $kardex->delete();
+
+            AuditLogger::log(
+                'kardex.deleted',
+                "Kárdex {$kardex->month}/{$kardex->year} del producto #{$kardex->product_id} eliminado",
+                $kardex,
+                old: $snapshot,
+                reason: $reason,
+                severity: \App\Models\AuditLog::SEVERITY_CRITICAL,
+            );
+        });
+    }
+
+    private function auditSnapshot(Kardex $kardex): array
+    {
+        return [
+            'product_id' => $kardex->product_id,
+            'periodo' => "{$kardex->month}/{$kardex->year}",
+            'estado' => $kardex->status,
+            'saldo_inicial' => (float) $kardex->opening_qty,
+            'saldo_final' => (float) $kardex->closing_qty,
+            'entradas' => (float) $kardex->total_entries_qty,
+            'salidas' => (float) $kardex->total_exits_qty,
+            'lineas' => $kardex->movements()->count(),
+        ];
     }
 }

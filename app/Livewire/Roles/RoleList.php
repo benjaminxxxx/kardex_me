@@ -55,7 +55,17 @@ class RoleList extends Component
             return;
         }
 
+        $permisos = $role->permissions->pluck('name')->all();
         $role->delete();
+
+        \App\Services\AuditLogger::log(
+            'role.deleted',
+            "Rol {$role->name} eliminado",
+            $role,
+            old: ['nombre' => $role->name, 'permisos' => $permisos],
+            severity: \App\Models\AuditLog::SEVERITY_WARNING,
+        );
+
         Flux::toast('Rol eliminado correctamente.');
     }
 

@@ -111,9 +111,17 @@
 
                     <flux:table.cell>
                         @if ($showTrashed)
-                            <flux:text size="sm" class="text-muted">
-                                {{ $purchase->deleted_at?->format('d/m/Y H:i') }}
-                            </flux:text>
+                            <div class="flex flex-col whitespace-normal max-w-xs">
+                                <flux:text size="sm">
+                                    {{ $purchase->deleted_at?->format('d/m/Y H:i') }}
+                                    @if ($purchase->deleted_by_name)
+                                        · {{ $purchase->deleted_by_name }}
+                                    @endif
+                                </flux:text>
+                                <flux:text size="sm" class="text-muted">
+                                    {{ $purchase->deletion_reason ?: 'Sin motivo registrado' }}
+                                </flux:text>
+                            </div>
                         @else
                             <flux:badge size="sm" :color="$purchase->payment_method === 'contado' ? 'green' : 'amber'">
                                 {{ ucfirst($purchase->payment_method) }}
@@ -139,8 +147,7 @@
                                         </flux:menu.item>
                                         <flux:menu.separator />
                                         <flux:menu.item icon="trash" variant="danger"
-                                            wire:confirm="¿Eliminar esta compra? Podrás restaurarla después."
-                                            wire:click="deletePurchase({{ $purchase->id }})">
+                                            wire:click="confirmDelete({{ $purchase->id }})">
                                             Eliminar
                                         </flux:menu.item>
                                     @endcan
@@ -158,4 +165,39 @@
             @endforelse
         </flux:table.rows>
     </flux:table>
+
+    <flux:modal wire:model.self="showDeleteModal" class="md:w-[480px]">
+        <div class="space-y-5">
+            <div>
+                <flux:heading size="lg">Eliminar compra</flux:heading>
+                @if ($this->deletingPurchase)
+                    <flux:text class="mt-2">
+                        {{ $this->deletingPurchase->supplier?->person?->display_name }} ·
+                        {{ $this->deletingPurchase->document_series }}-{{ $this->deletingPurchase->document_number }} ·
+                        {{ $this->deletingPurchase->currency }} {{ number_format($this->deletingPurchase->total, 2) }}
+                    </flux:text>
+                @endif
+            </div>
+
+            <flux:callout variant="warning" icon="exclamation-triangle">
+                <flux:callout.text>
+                    Se revertirá el stock que ingresó con esta compra. La eliminación queda registrada en Auditoría
+                    con fecha, hora, usuario y motivo. Podrás restaurarla desde "Ver eliminadas".
+                </flux:callout.text>
+            </flux:callout>
+
+            <flux:textarea wire:model="deletionReason" label="Motivo de la eliminación" rows="3"
+                placeholder="Ej.: compra registrada dos veces, comprobante anulado por el proveedor..." />
+
+            <div class="flex gap-2">
+                <flux:spacer />
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancelar</flux:button>
+                </flux:modal.close>
+                <flux:button variant="danger" icon="trash" wire:click="deletePurchase" wire:loading.attr="disabled">
+                    Eliminar compra
+                </flux:button>
+            </div>
+        </div>
+    </flux:modal>
 </div>

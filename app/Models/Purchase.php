@@ -13,9 +13,21 @@ class Purchase extends Model
     use SoftDeletes, HasAuditColumns;
 
     protected $fillable = [
-        'supplier_id', 'warehouse_id', 'currency', 'exchange_rate',
-        'document_type', 'document_series','document_number', 'document_date', 'due_date',
-        'payment_method', 'subtotal_neto', 'igv_total', 'total', 'notes',
+        'supplier_id',
+        'warehouse_id',
+        'currency',
+        'exchange_rate',
+        'document_type',
+        'document_series',
+        'document_number',
+        'document_date',
+        'due_date',
+        'payment_method',
+        'subtotal_neto',
+        'igv_total',
+        'total',
+        'notes',
+        'deletion_reason',
     ];
 
     protected $casts = [
@@ -40,5 +52,11 @@ class Purchase extends Model
     public function items(): HasMany
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class, 'source_id')
+            ->where('source_type', self::class);
     }
 }

@@ -26,9 +26,16 @@ class StockService
     ): StockMovement {
         return DB::transaction(function () use ($direction, $productId, $warehouseId, $quantity, $movementDate, $sourceType, $sourceId, $extra) {
 
-            // Validación preventiva en salidas manuales
+            // Se bloquea la fila del saldo hasta terminar la transacción, para que
+            // dos salidas simultáneas no pasen ambas la validación de stock.
+            $stock = ProductStock::where('product_id', $productId)
+                ->where('warehouse_id', $warehouseId)
+                ->lockForUpdate()
+                ->first()
+                ?? ProductStock::create(['product_id' => $productId, 'warehouse_id' => $warehouseId, 'quantity' => 0]);
+
             if ($direction === 'out') {
-                $disponible = self::available($productId, $warehouseId);
+                $disponible = (float) $stock->quantity;
                 if ($quantity > $disponible) {
                     throw new \RuntimeException("Stock insuficiente. Disponible: {$disponible}, solicitado: {$quantity}.");
                 }
@@ -43,11 +50,6 @@ class StockService
                 'source_type' => $sourceType,
                 'source_id' => $sourceId,
             ], $extra));
-
-            $stock = ProductStock::firstOrCreate(
-                ['product_id' => $productId, 'warehouse_id' => $warehouseId],
-                ['quantity' => 0]
-            );
 
             $delta = $direction === 'in' ? $quantity : -$quantity;
             $stock->increment('quantity', $delta);

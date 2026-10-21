@@ -3,6 +3,7 @@
 namespace App\Livewire\Kardex;
 
 use App\Models\Kardex;
+use App\Services\KardexService;
 use Flux\Flux;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -28,6 +29,7 @@ class KardexList extends Component
     public ?string $productLabel = null;
     public ?int $deletingKardexId = null;
     public bool $deleteKardexModal = false;
+    public string $deletionReason = '';
 
     protected $listeners = ['kardex-saved' => '$refresh'];
 
@@ -70,6 +72,8 @@ class KardexList extends Component
     }
     public function confirmDelete(int $kardexId): void
     {
+        $this->resetValidation();
+        $this->deletionReason = '';
         $this->deletingKardexId = $kardexId;
         $this->deleteKardexModal = true;
     }
@@ -81,12 +85,20 @@ class KardexList extends Component
                 return;
             }
 
-            $kardex = Kardex::findOrFail($this->deletingKardexId);
-            $kardex->delete();
+            $this->validate(
+                ['deletionReason' => ['required', 'string', 'min:10', 'max:1000']],
+                [],
+                ['deletionReason' => 'motivo de eliminación']
+            );
+
+            app(KardexService::class)->delete(Kardex::findOrFail($this->deletingKardexId), trim($this->deletionReason));
             $this->deletingKardexId = null;
+            $this->deletionReason = '';
             $this->deleteKardexModal = false;
 
-            Flux::toast('Kárdex eliminado correctamente.');
+            Flux::toast('Kárdex eliminado. Quedó registrado en Auditoría.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
         } catch (\Throwable $th) {
             Flux::toast($th->getMessage(), 'Error');
         }

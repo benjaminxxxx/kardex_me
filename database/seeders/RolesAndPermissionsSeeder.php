@@ -21,6 +21,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Permisos::USUARIOS_VER, Permisos::USUARIOS_GESTIONAR,
             Permisos::ROLES_VER, Permisos::ROLES_GESTIONAR, Permisos::PERMISOS_SINCRONIZAR,
             Permisos::CONFIGURACION_VER, Permisos::CONFIGURACION_GESTIONAR,
+            Permisos::AUDITORIA_VER,
             Permisos::EMPLEADOS_VER, Permisos::EMPLEADOS_GESTIONAR,
             Permisos::PROVEEDORES_VER, Permisos::PROVEEDORES_GESTIONAR,
             Permisos::COMPRAS_VER, Permisos::COMPRAS_GESTIONAR,

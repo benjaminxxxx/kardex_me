@@ -95,6 +95,15 @@ class ProductList extends Component
         }
 
         $product->delete();
+
+        \App\Services\AuditLogger::log(
+            'product.deleted',
+            "Producto {$product->code} {$product->name} eliminado",
+            $product,
+            old: $product->only(['code', 'name', 'category_id', 'unit_id']),
+            severity: \App\Models\AuditLog::SEVERITY_WARNING,
+        );
+
         Flux::toast('Producto eliminado. Puedes restaurarlo desde "Ver eliminados".');
     }
 

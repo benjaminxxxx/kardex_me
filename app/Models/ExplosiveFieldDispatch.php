@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\Permisos;
 use App\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -113,5 +114,24 @@ class ExplosiveFieldDispatch extends Model
     public function isDistributed(): bool
     {
         return $this->status === self::STATUS_DISTRIBUTED;
+    }
+
+    /**
+     * Regla única para distribuir o corregir una distribución.
+     * Siempre exige el permiso; si la empresa restringe al solicitante,
+     * además debe ser el empleado que retiró el despacho.
+     */
+    public function canBeDistributedBy(User $user, ?int $employeeId, bool $restrictToRequester): bool
+    {
+        if (! $user->can(Permisos::EXPLOSIVOS_DISTRIBUIR)) {
+            return false;
+        }
+
+        if (! $restrictToRequester) {
+            return true;
+        }
+
+        return $employeeId !== null
+            && (int) $this->requested_by_employee_id === $employeeId;
     }
 }

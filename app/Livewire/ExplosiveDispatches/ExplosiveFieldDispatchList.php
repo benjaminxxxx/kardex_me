@@ -2,10 +2,10 @@
 
 namespace App\Livewire\ExplosiveDispatches;
 
-use App\Constants\Permisos;
 use App\Models\CompanySetting;
 use App\Models\Employee;
 use App\Models\ExplosiveFieldDispatch;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -19,27 +19,28 @@ class ExplosiveFieldDispatchList extends Component
         'distribution-saved' => '$refresh',
     ];
 
-    public function getMyEmployeeIdProperty(): ?int
+    #[Computed]
+    public function myEmployeeId(): ?int
     {
         return Employee::query()
             ->where('person_id', auth()->user()->person_id)
             ->value('id');
     }
-    public function getRestrictDistributionProperty(): bool
+
+    #[Computed]
+    public function restrictDistribution(): bool
     {
         return CompanySetting::current()->restrict_distribution_to_requester;
     }
+
+    /** Misma regla que valida el formulario de distribución. */
     public function canDistribute(ExplosiveFieldDispatch $dispatch): bool
     {
-        if (!$dispatch->isPendingDistribution()) {
-            return false;
-        }
-
-        if ($this->restrictDistribution) {
-            return $dispatch->requested_by_employee_id === $this->myEmployeeId;
-        }
-
-        return auth()->user()->can(Permisos::EXPLOSIVOS_DISTRIBUIR);
+        return $dispatch->canBeDistributedBy(
+            auth()->user(),
+            $this->myEmployeeId,
+            $this->restrictDistribution,
+        );
     }
     public function getDispatchesProperty()
     {

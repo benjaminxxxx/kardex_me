@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Users;
 
+use App\Models\AuditLog;
 use App\Models\Person;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Flux\Flux;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\On;
@@ -71,6 +73,9 @@ class AccessManager extends Component
 
             $user->syncRoles([$this->selectedRole]);
 
+            $this->audit('user.access_created', "Acceso creado para {$this->personDisplayName}", $user,
+                new: ['email' => $user->email, 'rol' => $this->selectedRole]);
+
             $this->hasAccount = true;
             $this->showPasswordForm = false;
             $this->dispatch('user-created');
@@ -89,6 +94,7 @@ class AccessManager extends Component
         $user = User::where('person_id', $this->personId)->firstOrFail();
         $user->update(['password' => Hash::make($this->password)]);
 
+        $this->audit('user.password_changed', "Contraseña de {$this->personDisplayName} cambiada por un administrador", $user);
 
 
         $this->password = '';
@@ -105,9 +111,16 @@ class AccessManager extends Component
 
         $user = User::where('person_id', $this->personId)->firstOrFail();
 
+        // Fortify pasa el correo a minúsculas al iniciar sesión (lowercase_usernames)
+        $oldEmail = $user->email;
         $user->update([
-            'password' => Hash::make($this->password),
+            'email' => mb_strtolower(trim($this->email)),
         ]);
+
+        if ($oldEmail !== $user->email) {
+            $this->audit('user.email_changed', "Correo de acceso de {$this->personDisplayName} cambiado", $user,
+                old: ['email' => $oldEmail], new: ['email' => $user->email]);
+        }
 
         Flux::toast('Correo de acceso actualizado.');
     }
@@ -119,7 +132,13 @@ class AccessManager extends Component
         ], [], ['selectedRole' => 'rol']);
 
         $user = User::where('person_id', $this->personId)->firstOrFail();
+        $oldRoles = $user->roles->pluck('name')->all();
         $user->syncRoles([$this->selectedRole]);
+
+        if ($oldRoles !== [$this->selectedRole]) {
+            $this->audit('user.role_changed', "Rol de {$this->personDisplayName} cambiado a {$this->selectedRole}", $user,
+                old: ['roles' => $oldRoles], new: ['roles' => [$this->selectedRole]]);
+        }
 
         // touch() dispara el evento 'updating' del trait HasAuditColumns,
         // así el cambio de rol también queda registrado en updated_by / updated_by_name
@@ -143,9 +162,14 @@ class AccessManager extends Component
         $user = User::where('person_id', $this->personId)->first();
 
         if ($user) {
+            $snapshot = ['email' => $user->email, 'roles' => $user->roles->pluck('name')->all()];
+
             \DB::table('sessions')->where('user_id', $user->id)->delete();
             $user->syncRoles([]); // limpia la tabla pivote antes de borrar
             $user->delete();
+
+            $this->audit('user.access_removed', "Acceso de {$this->personDisplayName} eliminado", $user,
+                old: $snapshot, severity: AuditLog::SEVERITY_CRITICAL);
         }
 
         $this->hasAccount = false;
@@ -157,6 +181,11 @@ class AccessManager extends Component
         $this->showPasswordForm = true;
 
         Flux::toast('Se quitó el acceso al sistema correctamente.');
+    }
+
+    private function audit(string $event, string $description, User $user, array $old = [], array $new = [], string $severity = AuditLog::SEVERITY_WARNING): void
+    {
+        AuditLogger::log($event, $description, $user, old: $old, new: $new, severity: $severity);
     }
 
     public function close(): void

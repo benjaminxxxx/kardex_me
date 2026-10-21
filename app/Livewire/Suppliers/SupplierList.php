@@ -308,6 +308,14 @@ class SupplierList extends Component
                 // 2. Eliminar (soft delete) el registro de proveedor
                 $supplier->delete();
 
+                \App\Services\AuditLogger::log(
+                    'supplier.deleted',
+                    "Proveedor {$supplier->person?->display_name} dado de baja",
+                    $supplier,
+                    old: ['proveedor' => $supplier->person?->display_name, 'tenia_acceso' => (bool) $supplier->person?->user],
+                    severity: \App\Models\AuditLog::SEVERITY_WARNING,
+                );
+
                 // 3. Person NO se toca - sigue existiendo intacta
             });
 
