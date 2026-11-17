@@ -3,8 +3,7 @@
 namespace App\Livewire\Suppliers;
 
 use App\Models\Supplier;
-use App\Models\SupplierBranch;
-use App\Models\SupplierBankAccount;
+use App\Services\SupplierContactsService;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -41,7 +40,7 @@ class SupplierEditor extends Component
         $this->notes = $supplier->notes ?? '';
 
         $this->branches = $supplier->branches->map(fn ($branch) => [
-            'id' => $branch->id, // solo informativo, no se usa para update, se recrea todo
+            'id' => $branch->id,
             'type' => $branch->type,
             'name' => $branch->name,
             'is_main' => $branch->is_main,
@@ -58,6 +57,7 @@ class SupplierEditor extends Component
         }
 
         $this->bankAccounts = $supplier->bankAccounts->map(fn ($account) => [
+            'id' => $account->id,
             'type' => $account->type,
             'bank_name' => $account->bank_name ?? '',
             'account_number' => $account->account_number ?? '',
@@ -79,6 +79,7 @@ class SupplierEditor extends Component
     private function emptyBranch(): array
     {
         return [
+            'id' => null,
             'type' => 'fiscal',
             'name' => '',
             'is_main' => true,
@@ -94,6 +95,7 @@ class SupplierEditor extends Component
     private function emptyBankAccount(): array
     {
         return [
+            'id' => null,
             'type' => 'bank_account',
             'bank_name' => '',
             'account_number' => '',
@@ -150,45 +152,8 @@ class SupplierEditor extends Component
                     'notes' => $this->notes,
                 ]);
 
-                // Borrar y recrear, igual que en el wizard
-                $supplier->branches()->delete();
-                foreach ($this->branches as $branch) {
-                    SupplierBranch::create([
-                        'supplier_id' => $supplier->id,
-                        'type' => $branch['type'],
-                        'name' => $branch['name'],
-                        'is_main' => $branch['is_main'],
-                        'country' => $branch['country'],
-                        'state' => $branch['state'],
-                        'city' => $branch['city'],
-                        'address' => $branch['address'],
-                        'phone' => $branch['phone'],
-                        'email' => $branch['email'],
-                    ]);
-                }
-
-                $supplier->bankAccounts()->delete();
-                foreach ($this->bankAccounts as $account) {
-                    $hasBankData = filled($account['account_number']) || filled($account['bank_name']);
-                    $hasWalletData = filled($account['wallet_phone']);
-
-                    if (! $hasBankData && ! $hasWalletData) {
-                        continue;
-                    }
-
-                    SupplierBankAccount::create([
-                        'supplier_id' => $supplier->id,
-                        'type' => $account['type'],
-                        'bank_name' => $account['bank_name'],
-                        'account_number' => $account['account_number'],
-                        'cci' => $account['cci'],
-                        'currency' => $account['currency'],
-                        'wallet_provider' => $account['wallet_provider'],
-                        'wallet_phone' => $account['wallet_phone'],
-                        'account_holder_name' => $account['account_holder_name'],
-                        'is_main' => $account['is_main'],
-                    ]);
-                }
+                // Actualiza en lugar de borrar y recrear; los cambios van a Auditoría
+                app(SupplierContactsService::class)->sync($supplier, $this->branches, $this->bankAccounts);
             });
 
             $this->dispatch('supplier-saved');

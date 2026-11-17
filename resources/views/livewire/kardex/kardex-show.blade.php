@@ -69,6 +69,23 @@
         </flux:card>
     </div>
 
+    @if ($openingMismatch)
+        <flux:callout variant="danger" icon="exclamation-triangle">
+            <flux:callout.heading>El saldo inicial no coincide con el mes anterior</flux:callout.heading>
+            <flux:callout.text>
+                El kárdex de {{ $openingMismatch['previous_period'] }} cerró con
+                <strong>{{ number_format($openingMismatch['previous_closing'], 4) }}</strong>, pero este mes inicia con
+                <strong>{{ number_format($openingMismatch['opening'], 4) }}</strong>
+                (diferencia {{ number_format($openingMismatch['difference'], 4) }}).
+                @if ($kardex->status === 'open')
+                    Edita el saldo inicial y usa "Extraer del mes anterior", salvo que el ajuste sea intencional.
+                @else
+                    Este kárdex ya está cerrado: revisa el caso con contabilidad.
+                @endif
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
     @if ($kardex->status === 'open')
         <flux:callout variant="warning" icon="exclamation-triangle">
             <flux:callout.text>

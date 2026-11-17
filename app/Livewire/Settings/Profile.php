@@ -73,12 +73,4 @@ class Profile extends Component
 
         return $user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail();
     }
-
-    #[Computed]
-    public function showDeleteUser(): bool
-    {
-        $user = Auth::user();
-
-        return ! $user instanceof MustVerifyEmail || $user->hasVerifiedEmail();
-    }
 }

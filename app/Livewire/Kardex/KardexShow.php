@@ -104,6 +104,8 @@ class KardexShow extends Component
     
     public function render()
     {
-        return view('livewire.kardex.kardex-show');
+        return view('livewire.kardex.kardex-show', [
+            'openingMismatch' => app(KardexService::class)->openingMismatches()[$this->kardex->id] ?? null,
+        ]);
     }
 }

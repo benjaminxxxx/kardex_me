@@ -489,6 +489,8 @@ class KardexService
             throw new \RuntimeException('No se puede editar el saldo inicial de un kardex cerrado.');
         }
 
+        $before = ['cantidad' => (float) $kardex->opening_qty, 'costo_unitario' => (float) $kardex->opening_unit_cost];
+
         $kardex->update([
             'opening_qty' => $qty,
             'opening_unit_cost' => $unitCost,
@@ -496,6 +498,64 @@ class KardexService
         ]);
 
         $this->calculate($kardex);
+
+        $previous = $this->previousMonthClosingBalance($kardex);
+        AuditLogger::log(
+            'kardex.opening_changed',
+            "Saldo inicial del kárdex {$kardex->month}/{$kardex->year} (producto #{$kardex->product_id}) editado",
+            $kardex,
+            old: $before,
+            new: [
+                'cantidad' => $qty,
+                'costo_unitario' => $unitCost,
+                'cierre_mes_anterior' => $previous['qty'] ?? null,
+            ],
+            severity: $previous && abs($previous['qty'] - $qty) > 0.0001
+                ? \App\Models\AuditLog::SEVERITY_WARNING
+                : \App\Models\AuditLog::SEVERITY_INFO,
+        );
+    }
+
+    /**
+     * Kárdex cuyo saldo inicial no coincide con el saldo final del kárdex
+     * anterior del mismo producto. Devuelve [kardex_id => detalle].
+     */
+    public function openingMismatches(): array
+    {
+        $result = [];
+
+        Kardex::orderBy('product_id')->orderBy('year')->orderBy('month')
+            ->get(['id', 'product_id', 'year', 'month', 'opening_qty', 'closing_qty'])
+            ->groupBy('product_id')
+            ->each(function ($periods) use (&$result) {
+                $previous = null;
+                foreach ($periods as $kardex) {
+                    if ($previous && abs((float) $kardex->opening_qty - (float) $previous->closing_qty) > 0.0001) {
+                        $result[$kardex->id] = [
+                            'previous_period' => "{$previous->month}/{$previous->year}",
+                            'previous_closing' => (float) $previous->closing_qty,
+                            'opening' => (float) $kardex->opening_qty,
+                            'difference' => round((float) $kardex->opening_qty - (float) $previous->closing_qty, 4),
+                        ];
+                    }
+                    $previous = $kardex;
+                }
+            });
+
+        return $result;
+    }
+
+    /** Kárdex abiertos de meses que ya terminaron: deberían cerrarse. */
+    public function overdueOpen()
+    {
+        $now = now();
+
+        return Kardex::with('product:id,name')
+            ->where('status', 'open')
+            ->where(fn($q) => $q->where('year', '<', $now->year)
+                ->orWhere(fn($qq) => $qq->where('year', $now->year)->where('month', '<', $now->month)))
+            ->orderBy('year')->orderBy('month')
+            ->get();
     }
     /**
      * Trae el saldo final del mes anterior de este mismo producto,

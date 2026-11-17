@@ -255,6 +255,80 @@ class CriticalOperationsTest extends TestCase
         $this->actingAs($user)->get(route('dashboard'))->assertOk();
     }
 
+    public function test_editar_proveedor_conserva_direcciones_y_audita_cambios(): void
+    {
+        $branchId = DB::table('supplier_branches')->insertGetId([
+            'supplier_id' => $this->supplierId, 'type' => 'fiscal', 'name' => 'Oficina Lima', 'is_main' => true,
+        ]);
+        $accountId = DB::table('supplier_bank_accounts')->insertGetId([
+            'supplier_id' => $this->supplierId, 'type' => 'bank_account', 'bank_name' => 'BCP',
+            'account_number' => '191-000', 'currency' => 'PEN', 'is_main' => true,
+        ]);
+
+        $editor = Livewire::test(\App\Livewire\Suppliers\SupplierEditor::class)
+            ->call('open', $this->supplierId);
+
+        $branches = $editor->get('branches');
+        $branches[0]['name'] = 'Oficina Arequipa';
+
+        $editor->set('branches', $branches)
+            ->set('bankAccounts', [[
+                'id' => null, 'type' => 'bank_account', 'bank_name' => 'Interbank', 'account_number' => '200-111',
+                'cci' => '', 'currency' => 'PEN', 'wallet_provider' => '', 'wallet_phone' => '',
+                'account_holder_name' => '', 'is_main' => true,
+            ]])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        // La dirección se actualizó (mismo id), la cuenta quitada se eliminó y la nueva se creó
+        $this->assertSame('Oficina Arequipa', DB::table('supplier_branches')->where('id', $branchId)->value('name'));
+        $this->assertDatabaseMissing('supplier_bank_accounts', ['id' => $accountId]);
+        $this->assertDatabaseHas('supplier_bank_accounts', ['supplier_id' => $this->supplierId, 'bank_name' => 'Interbank']);
+
+        $log = AuditLog::where('event', 'supplier.contacts_changed')->firstOrFail();
+        $this->assertSame('Oficina Lima', $log->new_values['direcciones']['modificadas'][0]['antes']['name']);
+        $this->assertSame('191-000', $log->new_values['cuentas_bancarias']['eliminadas'][0]['account_number']);
+    }
+
+    public function test_alerta_saldo_inicial_distinto_y_recordatorio_de_cierre(): void
+    {
+        $service = app(KardexService::class);
+        $previousMonth = now()->subMonthNoOverflow();
+
+        $june = $service->openFirst($this->productId, 2026, 6, 100, 1);
+        $service->calculate($june);
+        $service->close($june);
+
+        // Julio se abre en secuencia (hereda 100) y luego alguien cambia su saldo inicial a 80 por fuera
+        $july = $service->openNext($this->productId, 2026);
+        $this->assertSame(7, (int) $july->month);
+        DB::table('kardexes')->where('id', $july->id)->update(['opening_qty' => 80]);
+        $july->refresh();
+
+        $mismatches = $service->openingMismatches();
+        $this->assertArrayHasKey($july->id, $mismatches);
+        $this->assertEquals(-20, $mismatches[$july->id]['difference']);
+        $this->assertArrayNotHasKey($june->id, $mismatches);
+
+        // Julio 2026 sigue abierto y ya terminó (hoy es posterior): debe aparecer como pendiente de cierre
+        $this->assertTrue($service->overdueOpen()->contains('id', $july->id));
+
+        Livewire::test(KardexList::class)
+            ->assertSee('Recordatorio de cierre mensual')
+            ->assertSee('Saldos iniciales que no coinciden');
+
+        // Al corregir el saldo inicial, la alerta desaparece y el cambio queda auditado
+        $service->updateOpeningBalance($july, 100, 1);
+        $this->assertArrayNotHasKey($july->id, $service->openingMismatches());
+        $this->assertTrue(AuditLog::where('event', 'kardex.opening_changed')->exists());
+    }
+
+    public function test_el_perfil_ya_no_permite_eliminar_la_cuenta(): void
+    {
+        $this->get(route('profile.edit'))->assertOk()->assertDontSee('Eliminar cuenta');
+        $this->assertFalse(class_exists(\App\Livewire\Settings\DeleteUserForm::class));
+    }
+
     public function test_actualizaciones_visible_para_cualquier_usuario(): void
     {
         $person = Person::create([

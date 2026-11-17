@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\ExplosiveFieldDispatch;
 use App\Models\Kardex;
 use App\Models\Purchase;
+use App\Services\KardexService;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -74,13 +75,16 @@ class Dashboard extends Component
         if ($user->can(Permisos::KARDEX_VER)) {
             $data['openKardex'] = Kardex::where('status', 'open')->count();
 
-            $staleKardex = Kardex::where('status', 'open')
-                ->where(fn($q) => $q->where('year', '<', now()->year)
-                    ->orWhere(fn($qq) => $qq->where('year', now()->year)->where('month', '<', now()->month - 1)))
-                ->count();
+            $kardexService = app(KardexService::class);
 
+            $staleKardex = $kardexService->overdueOpen()->count();
             if ($staleKardex) {
-                $data['alerts'][] = ['warning', "{$staleKardex} kárdex de meses anteriores siguen abiertos."];
+                $data['alerts'][] = ['warning', "Cierre mensual pendiente: {$staleKardex} kárdex de meses ya terminados siguen abiertos."];
+            }
+
+            $mismatches = count($kardexService->openingMismatches());
+            if ($mismatches) {
+                $data['alerts'][] = ['danger', "{$mismatches} kárdex tienen un saldo inicial distinto al cierre del mes anterior. Revisar en Kardex."];
             }
         }
 

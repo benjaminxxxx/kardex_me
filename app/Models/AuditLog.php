@@ -37,6 +37,8 @@ class AuditLog extends Model
         'settings.updated' => 'Configuración modificada',
         'product.deleted' => 'Producto eliminado',
         'supplier.deleted' => 'Proveedor dado de baja',
+        'supplier.contacts_changed' => 'Direcciones/cuentas de proveedor',
+        'kardex.opening_changed' => 'Saldo inicial de kárdex editado',
         'mining_labor.force_deleted' => 'Labor eliminada definitivamente',
     ];
 

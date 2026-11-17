@@ -47,6 +47,28 @@
         </div>
     </div>
 
+    @if ($overdue->isNotEmpty())
+        <flux:callout variant="warning" icon="calendar-days">
+            <flux:callout.heading>Recordatorio de cierre mensual</flux:callout.heading>
+            <flux:callout.text>
+                Hay {{ $overdue->count() }} kárdex de meses que ya terminaron y siguen abiertos. Ciérralos para fijar el
+                saldo inicial del mes siguiente:
+                {{ $overdue->map(fn($k) => ($k->product?->name ?? '#' . $k->product_id) . ' ' . str_pad($k->month, 2, '0', STR_PAD_LEFT) . '/' . $k->year)->join(', ') }}.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
+    @if (count($mismatches))
+        <flux:callout variant="danger" icon="exclamation-triangle">
+            <flux:callout.heading>Saldos iniciales que no coinciden</flux:callout.heading>
+            <flux:callout.text>
+                {{ count($mismatches) }} kárdex tienen un saldo inicial distinto al saldo final del mes anterior.
+                Están marcados en la tabla. Abre cada uno, edita el saldo inicial y usa "Extraer del mes anterior", o
+                verifica si el ajuste fue intencional.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
     @if ($year || $month || $status || $productId)
         <div class="flex items-center gap-2">
             <flux:text size="sm" class="text-muted">Filtros activos:</flux:text>
@@ -90,7 +112,18 @@
                         </flux:badge>
                     </flux:table.cell>
 
-                    <flux:table.cell>{{ number_format($kardex->opening_qty, 2) }}</flux:table.cell>
+                    <flux:table.cell>
+                        @if ($m = $mismatches[$kardex->id] ?? null)
+                            <flux:tooltip content="El mes anterior ({{ $m['previous_period'] }}) cerró con {{ number_format($m['previous_closing'], 2) }}. Diferencia: {{ number_format($m['difference'], 2) }}">
+                                <span class="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400">
+                                    <flux:icon.exclamation-triangle variant="micro" />
+                                    {{ number_format($kardex->opening_qty, 2) }}
+                                </span>
+                            </flux:tooltip>
+                        @else
+                            {{ number_format($kardex->opening_qty, 2) }}
+                        @endif
+                    </flux:table.cell>
                     <flux:table.cell class="text-green-600">+{{ number_format($kardex->total_entries_qty, 2) }}
                     </flux:table.cell>
                     <flux:table.cell class="text-red-500">-{{ number_format($kardex->total_exits_qty, 2) }}

@@ -3,8 +3,7 @@
 namespace App\Livewire\Suppliers;
 
 use App\Models\Supplier;
-use App\Models\SupplierBranch;
-use App\Models\SupplierBankAccount;
+use App\Services\SupplierContactsService;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
@@ -207,10 +206,8 @@ class SupplierWizard extends Component
                         // supplier_code se conserva, no se genera uno nuevo
                     ]);
 
-                    // Limpiamos direcciones/cuentas anteriores para reemplazarlas
-                    // por lo que el usuario acaba de llenar en el wizard
-                    $supplier->branches()->delete();
-                    $supplier->bankAccounts()->delete();
+                    // Las direcciones/cuentas anteriores se reemplazan por lo llenado
+                    // en el wizard; las que se eliminan quedan registradas en Auditoría
                 } else {
                     // ===== Alta nueva =====
                     $supplier = Supplier::create([
@@ -221,26 +218,13 @@ class SupplierWizard extends Component
                     ]);
                 }
 
-                foreach ($this->branches as $branch) {
-                    SupplierBranch::create([
-                        'supplier_id' => $supplier->id,
-                        ...$branch,
-                    ]);
-                }
-
-                foreach ($this->bankAccounts as $account) {
-                    $hasBankData = filled($account['account_number']) || filled($account['bank_name']);
-                    $hasWalletData = filled($account['wallet_phone']);
-
-                    if (!$hasBankData && !$hasWalletData) {
-                        continue;
-                    }
-
-                    SupplierBankAccount::create([
-                        'supplier_id' => $supplier->id,
-                        ...$account,
-                    ]);
-                }
+                // Alta nueva: no se audita. Reactivación: se audita lo que se reemplaza.
+                app(SupplierContactsService::class)->sync(
+                    $supplier,
+                    $this->branches,
+                    $this->bankAccounts,
+                    audit: (bool) $this->restoringSupplierId,
+                );
 
                 $this->dispatch('supplier-saved');
             });

@@ -1,5 +1,31 @@
 [
     {
+        "date": "2026-10-21",
+        "title": "Control de kárdex, historial de proveedores y limpieza",
+        "changes": [
+            {
+                "type": "nuevo",
+                "module": "Kárdex",
+                "description": "Alerta cuando el saldo inicial de un mes no coincide con el saldo final del mes anterior. El saldo aparece en rojo en la lista y el detalle muestra la diferencia. Editar un saldo inicial queda registrado en Auditoría."
+            },
+            {
+                "type": "nuevo",
+                "module": "Kárdex",
+                "description": "Recordatorio de cierre mensual: la lista de kárdex y el panel de control avisan qué meses ya terminaron y siguen abiertos."
+            },
+            {
+                "type": "mejora",
+                "module": "Proveedores",
+                "description": "Al editar un proveedor, sus direcciones y cuentas bancarias ya no se borran y se crean de nuevo: se actualizan. Los cambios y las eliminaciones quedan en Auditoría con los datos anteriores."
+            },
+            {
+                "type": "seguridad",
+                "module": "Perfil",
+                "description": "Se quitó la opción \"Eliminar cuenta\" del perfil. Solo un administrador puede quitar el acceso de un usuario, desde Empleados > Administrar acceso."
+            }
+        ]
+    },
+    {
         "date": "2026-10-20",
         "title": "Auditoría, corrección de stock y mejoras de seguridad",
         "changes": [

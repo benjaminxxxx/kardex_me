@@ -125,8 +125,12 @@ class KardexList extends Component
 
     public function render()
     {
+        $service = app(KardexService::class);
+
         return view('livewire.kardex.kardex-list', [
             'kardexes' => $this->kardexes,
+            'mismatches' => $service->openingMismatches(),
+            'overdue' => $service->overdueOpen(),
         ]);
     }
 }

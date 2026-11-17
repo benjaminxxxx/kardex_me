@@ -49,8 +49,6 @@
             </div>
         </form>
 
-        @if ($this->showDeleteUser)
-            <livewire:settings.delete-user-form />
-        @endif
+        {{-- Las cuentas solo las elimina un administrador desde Empleados > Administrar acceso --}}
     </x-settings.layout>
 </section>

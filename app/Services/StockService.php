@@ -57,39 +57,6 @@ class StockService
             return $movement;
         });
     }
-    /*public function registerMovement(
-        string $direction, // 'in' | 'out'
-        int $productId,
-        int $warehouseId,
-        float $quantity,
-        string $movementDate,
-        string $sourceType,
-        int $sourceId,
-        array $extra = []
-    ): StockMovement {
-        return DB::transaction(function () use ($direction, $productId, $warehouseId, $quantity, $movementDate, $sourceType, $sourceId, $extra) {
-
-            $movement = StockMovement::create(array_merge([
-                'direction' => $direction,
-                'product_id' => $productId,
-                'warehouse_id' => $warehouseId,
-                'quantity' => $quantity,
-                'movement_date' => $movementDate,
-                'source_type' => $sourceType,
-                'source_id' => $sourceId,
-            ], $extra));
-
-            $stock = ProductStock::firstOrCreate(
-                ['product_id' => $productId, 'warehouse_id' => $warehouseId],
-                ['quantity' => 0]
-            );
-
-            $delta = $direction === 'in' ? $quantity : -$quantity;
-            $stock->increment('quantity', $delta);
-
-            return $movement;
-        });
-    }*/
 
     /**
      * Traslado entre almacenes: exactamente tu ejemplo de "sacar de oficina,
